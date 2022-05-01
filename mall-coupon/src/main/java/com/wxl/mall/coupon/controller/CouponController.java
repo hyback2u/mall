@@ -1,20 +1,15 @@
 package com.wxl.mall.coupon.controller;
 
-import java.util.Arrays;
-import java.util.Map;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
-import com.wxl.mall.coupon.entity.CouponEntity;
-import com.wxl.mall.coupon.service.CouponService;
 import com.wxl.common.utils.PageUtils;
 import com.wxl.common.utils.R;
+import com.wxl.mall.coupon.entity.CouponEntity;
+import com.wxl.mall.coupon.service.CouponService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Map;
 
 
 /**
@@ -29,6 +24,16 @@ import com.wxl.common.utils.R;
 public class CouponController {
     @Autowired
     private CouponService couponService;
+
+    @RequestMapping(value = "/member/list")
+    public R memberCoupons() {
+        // 模拟从数据库中查询出来的
+        CouponEntity couponEntity = new CouponEntity();
+        couponEntity.setCouponName("满100减10");
+
+        return R.ok().put("coupons", Collections.singletonList(couponEntity));
+    }
+
 
     /**
      * 列表
