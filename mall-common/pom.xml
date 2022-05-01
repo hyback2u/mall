@@ -56,6 +56,11 @@
             <version>8.0.17</version>
         </dependency>
 
+        <!--每个模块都需要注册进注册中心, 所以在common中引入依赖, 其它模块也就有了服务注册功能-->
+        <dependency>
+            <groupId>com.alibaba.cloud</groupId>
+            <artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId>
+        </dependency>
     </dependencies>
 
     <!--引入SpringCloud Alibaba 2.1.0作为公共依赖管理-->
