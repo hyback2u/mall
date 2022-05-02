@@ -61,6 +61,12 @@
             <groupId>com.alibaba.cloud</groupId>
             <artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId>
         </dependency>
+
+        <!--引入Nacos Config Starter作为公共依赖, 使微服务与Nacos建立连接让其管理配置-->
+        <dependency>
+            <groupId>com.alibaba.cloud</groupId>
+            <artifactId>spring-cloud-starter-alibaba-nacos-config</artifactId>
+        </dependency>
     </dependencies>
 
     <!--引入SpringCloud Alibaba 2.1.0作为公共依赖管理-->
