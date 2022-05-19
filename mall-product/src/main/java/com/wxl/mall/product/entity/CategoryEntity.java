@@ -1,11 +1,12 @@
 package com.wxl.mall.product.entity;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import lombok.Data;
 
 import java.io.Serializable;
-import java.util.Date;
-import lombok.Data;
+import java.util.List;
 
 /**
  * 商品三级分类
@@ -57,4 +58,10 @@ public class CategoryEntity implements Serializable {
 	 */
 	private Integer productCount;
 
+
+	/**
+	 * 子分类, 不是数据表里的相关属性, 这里设置瞬时字段
+	 */
+	@TableField(exist = false)
+	private List<CategoryEntity> childCategoryEntity;
 }

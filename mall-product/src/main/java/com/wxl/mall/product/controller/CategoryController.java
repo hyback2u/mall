@@ -4,10 +4,11 @@ import com.wxl.common.utils.PageUtils;
 import com.wxl.common.utils.R;
 import com.wxl.mall.product.entity.CategoryEntity;
 import com.wxl.mall.product.service.CategoryService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.Resource;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 
@@ -22,11 +23,24 @@ import java.util.Map;
 @RestController
 @RequestMapping("product/category")
 public class CategoryController {
-    @Autowired
+//    @Autowired
+    @Resource // 没啥, 就是这样的话编译器不会有warring~
     private CategoryService categoryService;
 
     /**
+     * 查出所有分类以及子分类, 以树形结构组装起来
+     *
+     */
+    @RequestMapping("/listTree")
+    public R listAsTree() {
+        List<CategoryEntity> categoryEntityList = categoryService.listWithTree();
+
+        return R.ok().put("data", categoryEntityList);
+    }
+
+    /**
      * 列表
+     * 逆向生成的方法, 查询所有的分类, 不过是分页查询
      */
     @RequestMapping("/list")
     public R list(@RequestParam Map<String, Object> params){

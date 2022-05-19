@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.wxl.common.utils.PageUtils;
 import com.wxl.mall.product.entity.CategoryEntity;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -16,5 +17,12 @@ import java.util.Map;
 public interface CategoryService extends IService<CategoryEntity> {
 
     PageUtils queryPage(Map<String, Object> params);
+
+    /**
+     * 查出所有分类以及子分类, 以树形结构组装起来
+     *
+     * @return 封装成树形结构的分类List
+     */
+    List<CategoryEntity> listWithTree();
 }
 
