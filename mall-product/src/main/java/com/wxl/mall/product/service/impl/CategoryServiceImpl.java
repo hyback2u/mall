@@ -46,7 +46,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
         // 2、组装成父子树形结构
         List<CategoryEntity> entityList = categoryEntityList.stream()
                 // 1、找到所有的一级分类(一级分类特点:父分类id: parent_cid是0)
-                .filter(categoryEntity -> categoryEntity.getParentCid() == 0)
+                .filter(categoryEntity -> categoryEntity.getParentCid().equals(0L))
                 // 2、collect收集之前, 改变菜单里的一些属性, 这里通过map将每一个菜单里的内容改变一下 map->peek, 少了一个return
                 .peek(categoryEntity -> {
                     // 将当前菜单的子分类保存进去
