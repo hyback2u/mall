@@ -10,6 +10,7 @@ spring:
         server-addr: 127.0.0.1:8848 # 配置 Nacos Server 地址
     gateway:
       routes:
+        # 测试网关基本功能
         - id: baidu_route
           uri: https://www.baidu.com
           predicates:
@@ -19,3 +20,24 @@ spring:
           uri: https://www.qq.com
           predicates:
             - Query=url,qq
+
+        - id: product_route
+          uri: lb://mall-product
+          predicates:
+            - Path=/api/product/**
+          filters:
+            - RewritePath=/api/(?<segment>.*), /$\{segment}
+
+        - id: renren_route
+          uri: lb://renren-fast
+          predicates:
+            - Path=/api/**
+          filters:
+            - RewritePath=/api/(?<segment>.*), /renren-fast/$\{segment}
+
+
+
+# 定义规则: 前端项目, 发送请求都带有/api前缀
+
+# http://localhost:88/api/captcha.jpg -> http://renren-fast:8080/api/captcha.jpg
+# 但是, 上述有问题, 正确的应该是: http://renren-fast:8080/captcha.jpg ,这就需要路径重写

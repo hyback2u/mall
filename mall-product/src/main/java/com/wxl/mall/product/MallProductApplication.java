@@ -3,6 +3,7 @@ package com.wxl.mall.product;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 
 /**
  * 整合 MyBatis-Plus
@@ -18,6 +19,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * @author wangxl
  * @since 2022/4/29 20:19
  */
+@EnableDiscoveryClient
 @MapperScan(value = "com.wxl.mall.product.dao")
 @SpringBootApplication
 public class MallProductApplication {
