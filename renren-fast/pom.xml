@@ -9,27 +9,15 @@
     <description>renren-fast</description>
 
     <parent>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-parent</artifactId>
-<!--        <version>2.6.6</version>-->
-        <!--替换成教程的版本-->
-        <version>2.1.8.RELEASE</version>
-        <relativePath/>
+        <artifactId>mall</artifactId>
+        <groupId>com.wxl.mall</groupId>
+        <version>1.0-SNAPSHOT</version>
     </parent>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
-<!--        <java.version>1.8</java.version>-->
-<!--        <mybatisplus.version>3.3.1</mybatisplus.version>-->
-        <!--替换成教程的版本-->
-        <mybatisplus.version>3.2.0</mybatisplus.version>
-        <mysql.version>8.0.17</mysql.version>
-
-        <mysql.version>8.0.28</mysql.version>
-        <mssql.version>4.0</mssql.version>
-        <oracle.version>11.2.0.3</oracle.version>
         <druid.version>1.1.13</druid.version>
         <quartz.version>2.3.0</quartz.version>
         <commons.lang.version>2.6</commons.lang.version>
@@ -57,7 +45,6 @@
         <fastjson.version>1.2.60</fastjson.version>
 
         <hutool.version>4.1.1</hutool.version>
-        <lombok.version>1.18.4</lombok.version>
 
         <!--wagon plugin 配置-->
         <service-path>/work/renren</service-path>
@@ -105,15 +92,9 @@
             <artifactId>spring-boot-configuration-processor</artifactId>
             <optional>true</optional>
         </dependency>
-        <!--<dependency>-->
-        <!--<groupId>org.springframework.boot</groupId>-->
-        <!--<artifactId>spring-boot-devtools</artifactId>-->
-        <!--<optional>true</optional>-->
-        <!--</dependency>-->
         <dependency>
             <groupId>com.baomidou</groupId>
             <artifactId>mybatis-plus-boot-starter</artifactId>
-            <version>${mybatisplus.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>com.baomidou</groupId>
@@ -124,24 +105,6 @@
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
-            <version>${mysql.version}</version>
-        </dependency>
-        <!--oracle驱动-->
-        <dependency>
-            <groupId>com.oracle</groupId>
-            <artifactId>ojdbc6</artifactId>
-            <version>${oracle.version}</version>
-        </dependency>
-        <!--mssql驱动-->
-        <dependency>
-            <groupId>com.microsoft.sqlserver</groupId>
-            <artifactId>sqljdbc4</artifactId>
-            <version>${mssql.version}</version>
-        </dependency>
-        <!--postgresql驱动-->
-        <dependency>
-            <groupId>org.postgresql</groupId>
-            <artifactId>postgresql</artifactId>
         </dependency>
         <dependency>
             <groupId>com.alibaba</groupId>
@@ -254,11 +217,6 @@
             <groupId>cn.hutool</groupId>
             <artifactId>hutool-all</artifactId>
             <version>${hutool.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <version>${lombok.version}</version>
         </dependency>
     </dependencies>
 
