@@ -1,6 +1,5 @@
 package com.wxl.mall.product.service.impl;
 
-import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -57,7 +56,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
                 .sorted(Comparator.comparingInt(menu -> (menu.getSort() == null ? 0 : menu.getSort())))
                 .collect(Collectors.toList());
 
-        log.info("**********************categoryList tree: {}", JSON.toJSONString(entityList));
+        log.info("**********************categoryList size: {}", entityList.size());
 
         return entityList;
     }
