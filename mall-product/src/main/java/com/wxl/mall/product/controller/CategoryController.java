@@ -82,10 +82,18 @@ public class CategoryController {
 
     /**
      * 删除
+     * 这里是逆向生成的删除功能
+     * 注释: @RequestBody是要获取请求体里的数据 ==> post请求才有请求体, 所以必须发送post
+     * SpringMVC会自动将请求体的数据(json)转为对应的对象, 这里可以使用postman进行模拟调用测试
      */
     @RequestMapping("/delete")
     public R delete(@RequestBody Long[] catIds){
-		categoryService.removeByIds(Arrays.asList(catIds));
+        // 1、检查当前删除的菜单, 是否被别的地方引用了
+
+        // note: 这个逻辑, 是自动生成的, 这里把它注释掉, 我们并不能直接删除
+//		categoryService.removeByIds(Arrays.asList(catIds));
+
+        categoryService.removeConditionalByIds(Arrays.asList(catIds));
 
         return R.ok();
     }

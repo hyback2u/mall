@@ -62,6 +62,19 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
     }
 
     /**
+     *
+     * @param idList 要删除的id的集合, 批量删除(这里考虑以后在写实现时, 都是批量的, 当然兼容单个)
+     */
+    @Override
+    public void removeConditionalByIds(List<Long> idList) {
+        // 1、执行删除前, 先执行检查 TODO 并不知道业务中什么会引用逻辑菜单
+
+        // 这里就是批量删除的最终执行语句, 不过这个是物理删除(删了以后就真没了)
+        // 逻辑删除:只是使用我们某一个字段作为标识位, 来表示是否被删除, 如pms_category表里的show_status(1显示, 0不显示)
+        baseMapper.deleteBatchIds(idList);
+    }
+
+    /**
      * 递归的方法找到每一个菜单的子菜单
      *
      * @param root 当前菜单

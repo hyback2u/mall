@@ -24,5 +24,8 @@ public interface CategoryService extends IService<CategoryEntity> {
      * @return 封装成树形结构的分类List
      */
     List<CategoryEntity> listWithTree();
+
+
+    void removeConditionalByIds(List<Long> idList);
 }
 

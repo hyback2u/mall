@@ -17,3 +17,11 @@ mybatis-plus:
   global-config: # 配置数据库实体类主键自增, 否则需要在每个实体类上操作
     db-config:
       id-type: auto
+      logic-delete-value: 1 # 1代表已删除
+      logic-not-delete-value: 0 # 0代表没删除
+
+# 调整日志级别, 打印debug日志(sql日志)
+logging:
+  level:
+    com.wxl.mall: debug
+
