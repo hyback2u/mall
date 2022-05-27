@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.Map;
 
 
-
 /**
  * 商品三级分类
  *
@@ -23,13 +22,12 @@ import java.util.Map;
 @RestController
 @RequestMapping("product/category")
 public class CategoryController {
-//    @Autowired
+    //    @Autowired
     @Resource // 没啥, 就是这样的话编译器不会有warring~
     private CategoryService categoryService;
 
     /**
      * 查出所有分类以及子分类, 以树形结构组装起来
-     *
      */
     @RequestMapping("/list/tree")
     public R listAsTree() {
@@ -43,7 +41,7 @@ public class CategoryController {
      * 逆向生成的方法, 查询所有的分类, 不过是分页查询
      */
     @RequestMapping("/list")
-    public R list(@RequestParam Map<String, Object> params){
+    public R list(@RequestParam Map<String, Object> params) {
         PageUtils page = categoryService.queryPage(params);
 
         return R.ok().put("page", page);
@@ -54,8 +52,8 @@ public class CategoryController {
      * 信息
      */
     @RequestMapping("/info/{catId}")
-    public R info(@PathVariable("catId") Long catId){
-		CategoryEntity category = categoryService.getById(catId);
+    public R info(@PathVariable("catId") Long catId) {
+        CategoryEntity category = categoryService.getById(catId);
 
         return R.ok().put("data", category);
     }
@@ -64,8 +62,8 @@ public class CategoryController {
      * 保存
      */
     @RequestMapping("/save")
-    public R save(@RequestBody CategoryEntity category){
-		categoryService.save(category);
+    public R save(@RequestBody CategoryEntity category) {
+        categoryService.save(category);
 
         return R.ok();
     }
@@ -74,11 +72,26 @@ public class CategoryController {
      * 修改
      */
     @RequestMapping("/update")
-    public R update(@RequestBody CategoryEntity category){
-		categoryService.updateById(category);
+    public R update(@RequestBody CategoryEntity category) {
+        categoryService.updateById(category);
 
         return R.ok();
     }
+
+
+    /**
+     * 拖拽功能, 将商品分类拖拽后收集到的需要进行修改的数据进行批量更新
+     *
+     * @param categoryEntities 需要修改的category数组
+     * @return message
+     */
+    @RequestMapping("/update/sort")
+    public R updateSort(@RequestBody CategoryEntity[] categoryEntities) {
+        categoryService.updateBatchById(Arrays.asList(categoryEntities));
+
+        return R.ok();
+    }
+
 
     /**
      * 删除
@@ -87,7 +100,7 @@ public class CategoryController {
      * SpringMVC会自动将请求体的数据(json)转为对应的对象, 这里可以使用postman进行模拟调用测试
      */
     @RequestMapping("/delete")
-    public R delete(@RequestBody Long[] catIds){
+    public R delete(@RequestBody Long[] catIds) {
         // 1、检查当前删除的菜单, 是否被别的地方引用了
 
         // note: 这个逻辑, 是自动生成的, 这里把它注释掉, 我们并不能直接删除
