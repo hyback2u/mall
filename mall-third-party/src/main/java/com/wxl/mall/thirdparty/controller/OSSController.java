@@ -4,6 +4,7 @@ import com.aliyun.oss.OSS;
 import com.aliyun.oss.common.utils.BinaryUtil;
 import com.aliyun.oss.model.MatchMode;
 import com.aliyun.oss.model.PolicyConditions;
+import com.wxl.common.utils.R;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -38,7 +39,7 @@ public class OSSController {
 
 
     @RequestMapping(value = "/oss/policy")
-    public Map<String, String> policy() {
+    public R policy() {
 
         // https://devops-mall.oss-cn-nanjing.aliyuncs.com/third.jpg
 
@@ -76,6 +77,6 @@ public class OSSController {
             System.out.println(e.getMessage());
         }
 
-        return respMap;
+        return R.ok().put("data", respMap);
     }
 }
