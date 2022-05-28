@@ -34,6 +34,15 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
+
+        <!--引入阿里云对象存储SDK-->
+        <!--注释掉, 后续使用starter整合引入-->
+<!--        <dependency>-->
+<!--            <groupId>com.aliyun.oss</groupId>-->
+<!--            <artifactId>aliyun-sdk-oss</artifactId>-->
+<!--            <version>3.5.0</version>-->
+<!--        </dependency>-->
+
     </dependencies>
 
 

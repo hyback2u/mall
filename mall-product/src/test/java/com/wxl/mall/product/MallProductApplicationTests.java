@@ -1,5 +1,8 @@
 package com.wxl.mall.product;
 
+import com.aliyun.oss.OSS;
+import com.aliyun.oss.OSSClient;
+import com.aliyun.oss.OSSClientBuilder;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.wxl.mall.product.entity.BrandEntity;
 import com.wxl.mall.product.service.BrandService;
@@ -9,6 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.io.FileInputStream;
+import java.io.InputStream;
 import java.util.List;
 
 /**
@@ -21,6 +26,50 @@ public class MallProductApplicationTests {
 
     @Autowired
     BrandService brandService;
+
+    @Autowired
+    OSSClient ossClient;
+
+
+    /**
+     * start启动器方式测试oss使用
+     */
+    @Test
+    public void ossStarterTest() throws Exception {
+        InputStream inputStream = new FileInputStream("E:\\worksapce\\ha.jpg");
+        ossClient.putObject("devops-mall", "wuhu.jpg", inputStream);
+
+        // 关闭OSSClient
+        ossClient.shutdown();
+
+        System.out.println("****************上传完成");
+    }
+
+    /**
+     * 阿里云OSS云存储简单测试
+     */
+    @Test
+    public void ossTest() throws Exception {
+        // Endpoint以华东1（杭州）为例，其它Region请按实际情况填写。
+        String endpoint = "******************";
+        // 阿里云账号AccessKey拥有所有API的访问权限，风险很高。强烈建议您创建并使用RAM用户进行API访问或日常运维，请登录RAM控制台创建RAM用户。
+        String accessKeyId = "******************";
+        String accessKeySecret = "******************";
+
+        String bucketName = "devops-mall";
+
+        // 创建OSSClient实例。
+        OSS ossClient1 = new OSSClientBuilder().build(endpoint, accessKeyId, accessKeySecret);
+
+        // 上传文件流
+        InputStream inputStream = new FileInputStream("E:\\worksapce\\wbb.jpg");
+        ossClient1.putObject(bucketName, "wbb.jpg", inputStream);
+
+        // 关闭OSSClient
+        ossClient1.shutdown();
+
+        System.out.println("****************上传完成");
+    }
 
 
     @Test
