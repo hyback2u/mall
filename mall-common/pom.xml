@@ -64,12 +64,6 @@
             <groupId>com.alibaba.cloud</groupId>
             <artifactId>spring-cloud-starter-alibaba-nacos-config</artifactId>
         </dependency>
-
-        <!--引入SpringCloud Alibaba-OSS-->
-        <dependency>
-            <groupId>com.alibaba.cloud</groupId>
-            <artifactId>spring-cloud-alicloud-oss</artifactId>
-        </dependency>
     </dependencies>
 
 </project>
