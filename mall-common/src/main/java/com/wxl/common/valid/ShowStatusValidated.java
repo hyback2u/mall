@@ -11,6 +11,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
  * JSR303自定义校验注解: showStatus逻辑删除字段校验
+ * validatedBy可以指定多个校验器, 自动适配
  *
  * @author wangxl
  * @since 2022/5/28 15:22
