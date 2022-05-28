@@ -3,6 +3,7 @@ package com.wxl.mall.product.entity;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.wxl.common.valid.AddGroup;
+import com.wxl.common.valid.ShowStatusValidated;
 import com.wxl.common.valid.UpdateGroup;
 import lombok.Data;
 import org.hibernate.validator.constraints.URL;
@@ -52,15 +53,15 @@ public class BrandEntity implements Serializable {
     /**
      * 显示状态[0-不显示；1-显示]
      */
+    @ShowStatusValidated(value = {0, 1}, groups = {AddGroup.class})
     @NotNull(message = "显示状态不能为空", groups = AddGroup.class)
     private Integer showStatus;
 
     /**
      * 检索首字母
      */
-    @SuppressWarnings("all")
     @NotEmpty(message = "检索首字母不能为空", groups = AddGroup.class)
-    @Pattern(regexp = "/^[a-zA-Z]$/", message = "检索首字母必须是一个字母", groups = {AddGroup.class, UpdateGroup.class})
+    @Pattern(regexp = "^[a-zA-Z]$", message = "检索首字母必须是一个字母", groups = {AddGroup.class, UpdateGroup.class})
     private String firstLetter;
 
     /**
