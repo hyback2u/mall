@@ -2,12 +2,13 @@ package com.wxl.mall.product.controller;
 
 import com.wxl.common.utils.PageUtils;
 import com.wxl.common.utils.R;
+import com.wxl.common.valid.AddGroup;
 import com.wxl.mall.product.entity.BrandEntity;
 import com.wxl.mall.product.service.BrandService;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
-import javax.validation.Valid;
 import java.util.Arrays;
 import java.util.Map;
 
@@ -49,12 +50,13 @@ public class BrandController {
 
     /**
      * 保存
+     * Validated({AddGroup.class}):只校验添加分组的
      *
      * @param brand BrandEntity品牌实体
      * @return message
      */
     @RequestMapping("/save")
-    public R save(@Valid @RequestBody BrandEntity brand) {
+    public R save(@Validated({AddGroup.class}) @RequestBody BrandEntity brand) {
         brandService.save(brand);
 
         return R.ok();
