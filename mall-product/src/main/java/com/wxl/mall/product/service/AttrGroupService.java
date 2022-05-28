@@ -16,5 +16,14 @@ import java.util.Map;
 public interface AttrGroupService extends IService<AttrGroupEntity> {
 
     PageUtils queryPage(Map<String, Object> params);
+
+    /**
+     * 如果没有三级分类, 就传0, 查询所有; 有的话就查三级分类下的
+     *
+     * @param params 分页参数
+     * @param categoryId 三级分类id
+     * @return message&data
+     */
+    PageUtils queryPage(Map<String, Object> params, Long categoryId);
 }
 
