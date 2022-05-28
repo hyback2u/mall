@@ -3,6 +3,8 @@ package com.wxl.mall.product.controller;
 import com.wxl.common.utils.PageUtils;
 import com.wxl.common.utils.R;
 import com.wxl.common.valid.AddGroup;
+import com.wxl.common.valid.UpdateGroup;
+import com.wxl.common.valid.UpdateStatusGroup;
 import com.wxl.mall.product.entity.BrandEntity;
 import com.wxl.mall.product.service.BrandService;
 import org.springframework.validation.annotation.Validated;
@@ -66,7 +68,17 @@ public class BrandController {
      * 修改
      */
     @RequestMapping("/update")
-    public R update(@RequestBody BrandEntity brand) {
+    public R update(@Validated(UpdateGroup.class) @RequestBody BrandEntity brand) {
+        brandService.updateById(brand);
+
+        return R.ok();
+    }
+
+    /**
+     * 修改状态
+     */
+    @RequestMapping("/update/status")
+    public R updateStatus(@Validated(UpdateStatusGroup.class) @RequestBody BrandEntity brand) {
         brandService.updateById(brand);
 
         return R.ok();
