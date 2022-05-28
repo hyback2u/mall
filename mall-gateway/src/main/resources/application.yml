@@ -11,15 +11,22 @@ spring:
     gateway:
       routes:
         # 测试网关基本功能
-        - id: baidu_route
-          uri: https://www.baidu.com
-          predicates:
-            - Query=url,baidu
+#        - id: baidu_route
+#          uri: https://www.baidu.com
+#          predicates:
+#            - Query=url,baidu
+#
+#        - id: qq_route
+#          uri: https://www.qq.com
+#          predicates:
+#            - Query=url,qq
 
-        - id: qq_route
-          uri: https://www.qq.com
+        - id: third_party_route
+          uri: lb://mall-third-party
           predicates:
-            - Query=url,qq
+            - Path=/api/thirdparty/**
+          filters:
+            - RewritePath=/api/thirdparty/(?<segment>.*), /$\{segment}
 
         - id: product_route
           uri: lb://mall-product

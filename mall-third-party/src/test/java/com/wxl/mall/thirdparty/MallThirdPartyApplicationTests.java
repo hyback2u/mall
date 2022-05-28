@@ -1,6 +1,6 @@
 package com.wxl.mall.thirdparty;
 
-import com.aliyun.oss.OSSClient;
+import com.aliyun.oss.OSS;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +18,7 @@ import java.io.InputStream;
 @SpringBootTest
 public class MallThirdPartyApplicationTests {
     @Autowired
-    OSSClient ossClient;
+    OSS ossClient;
 
     @Test
     public void contextLoads() throws Exception {
