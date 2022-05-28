@@ -4,6 +4,7 @@ import com.wxl.common.utils.PageUtils;
 import com.wxl.common.utils.R;
 import com.wxl.mall.product.entity.AttrGroupEntity;
 import com.wxl.mall.product.service.AttrGroupService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -18,6 +19,7 @@ import java.util.Map;
  * @email 1919543837@qq.com
  * @date 2022-04-30 11:20:00
  */
+@Slf4j
 @RestController
 @RequestMapping("product/attrgroup")
 public class AttrGroupController {
@@ -35,6 +37,7 @@ public class AttrGroupController {
     @RequestMapping("/list/{categoryId}")
     public R list(@RequestParam Map<String, Object> params,
                   @PathVariable("categoryId") Long categoryId) {
+        log.info("**************list(), categoryId = {}", categoryId);
         PageUtils page = attrGroupService.queryPage(params, categoryId);
 
         return R.ok().put("page", page);
