@@ -19,9 +19,10 @@ public class AttrGroupServiceImpl extends ServiceImpl<AttrGroupDao, AttrGroupEnt
 
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
+        // todo 这里分页的逻辑需要了解下
         IPage<AttrGroupEntity> page = this.page(
                 new Query<AttrGroupEntity>().getPage(params),
-                new QueryWrapper<AttrGroupEntity>()
+                new QueryWrapper<>()
         );
 
         return new PageUtils(page);
@@ -36,27 +37,28 @@ public class AttrGroupServiceImpl extends ServiceImpl<AttrGroupDao, AttrGroupEnt
      */
     @Override
     public PageUtils queryPage(Map<String, Object> params, Long categoryId) {
-        // todo 这里分页的逻辑需要了解下
-        if (categoryId.equals(0L)) {
-            IPage<AttrGroupEntity> page = this.page(
-                    new Query<AttrGroupEntity>().getPage(params),
-                    new QueryWrapper<>());
-            return new PageUtils(page);
-        }
-
         // 构造查询条件
         QueryWrapper<AttrGroupEntity> wrapper = new QueryWrapper<>();
-        wrapper.eq("catelog_id", categoryId);
 
         // 提交的检索条件是否存在, 检索条件存在, 则进行多字段模糊匹配查询
         String searchKey = (String) params.get("key");
         if (StringUtils.isNotBlank(searchKey)) {
             // 继续构造
-            wrapper.and((obj) -> {
-                obj.like("attr_group_id", searchKey)
-                        .or().like("attr_group_name", searchKey)
-                        .or().like("descript", searchKey);
-            });
+            wrapper.like("attr_group_id", searchKey)
+                    .or().like("attr_group_name", searchKey)
+                    .or().like("descript", searchKey);
+        }
+
+
+        if (categoryId.equals(0L)) {
+            IPage<AttrGroupEntity> page = this.page(new Query<AttrGroupEntity>().getPage(params), wrapper);
+            return new PageUtils(page);
+        }
+
+        if (StringUtils.isNotBlank(searchKey)) {
+            wrapper.and((obj) -> obj.eq("catelog_id", categoryId));
+        } else {
+            wrapper.eq("catelog_id", categoryId);
         }
 
         IPage<AttrGroupEntity> page = this.page(
