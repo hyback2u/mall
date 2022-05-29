@@ -11,10 +11,7 @@ import com.wxl.mall.product.service.CategoryService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -53,8 +50,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
                 })
                 // 3、排序: (menu1, menu2) -> {return menu1.getSort() - menu2.getSort(); }
                 // fixed.NPE 优化前:.sorted((menu1, menu2) -> (menu1.getSort() == null ? 0 : menu1.getSort()) - (menu2.getSort() == null ? 0 : menu2.getSort()))
-                .sorted(Comparator.comparingInt(menu -> (menu.getSort() == null ? 0 : menu.getSort())))
-                .collect(Collectors.toList());
+                .sorted(Comparator.comparingInt(menu -> (menu.getSort() == null ? 0 : menu.getSort()))).collect(Collectors.toList());
 
         log.info("**********************categoryList size: {}", entityList.size());
 
@@ -62,7 +58,6 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
     }
 
     /**
-     *
      * @param idList 要删除的id的集合, 批量删除(这里考虑以后在写实现时, 都是批量的, 当然兼容单个)
      */
     @Override
@@ -73,6 +68,45 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
         // 逻辑删除:只是使用我们某一个字段作为标识位, 来表示是否被删除, 如pms_category表里的show_status(1显示, 0不显示)
         baseMapper.deleteBatchIds(idList);
     }
+
+    /**
+     * 根据三级分类id查询出该分类的完整路径
+     *
+     * @param catelogId 三级分类id
+     * @return Long[], 分类的完整路径, eg:[2, 25, 230]
+     */
+    @Override
+    public Long[] findCatelogPathByCatelogId(Long catelogId) {
+        List<Long> paths = new ArrayList<>();
+        List<Long> parentPath = findParentPath(catelogId, paths);
+
+        // 得到的需要进行逆序转换
+        Collections.reverse(parentPath);
+
+        Long[] catelogPath = new Long[parentPath.size()];
+        return parentPath.toArray(catelogPath);
+    }
+
+    /**
+     * 根据三级分类id查询出该分类的完整路径
+     *
+     * @param catelogId 三级分类id
+     * @param paths     收集用
+     * @return eg:[230, 25, 2], 这里收集到的时逆序的
+     */
+    private List<Long> findParentPath(Long catelogId, List<Long> paths) {
+        // 1、收集当前节点id
+        paths.add(catelogId);
+
+        CategoryEntity category = this.getById(catelogId);
+        if (!Objects.equals(category.getParentCid(), 0L)) {
+            // 2、父节点id
+            findParentPath(category.getParentCid(), paths);
+        }
+
+        return paths;
+    }
+
 
     /**
      * 递归的方法找到每一个菜单的子菜单
@@ -89,8 +123,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
                 // 2、子菜单还有可能有子菜单, 这里为每一个菜单找到它的子菜单(同样是map->peek)
                 .peek(categoryEntity -> categoryEntity.setChildCategoryEntity(getChildCategoryEntityList(categoryEntity, all)))
                 // 3、排序
-                .sorted(Comparator.comparingInt(menu -> (menu.getSort() == null ? 0 : menu.getSort())))
-                .collect(Collectors.toList());
+                .sorted(Comparator.comparingInt(menu -> (menu.getSort() == null ? 0 : menu.getSort()))).collect(Collectors.toList());
     }
 
 }

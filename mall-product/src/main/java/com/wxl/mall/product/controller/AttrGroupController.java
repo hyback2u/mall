@@ -4,6 +4,7 @@ import com.wxl.common.utils.PageUtils;
 import com.wxl.common.utils.R;
 import com.wxl.mall.product.entity.AttrGroupEntity;
 import com.wxl.mall.product.service.AttrGroupService;
+import com.wxl.mall.product.service.CategoryService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,6 +26,9 @@ import java.util.Map;
 public class AttrGroupController {
     @Resource
     private AttrGroupService attrGroupService;
+
+    @Resource
+    private CategoryService categoryService;
 
 
     /**
@@ -55,11 +59,21 @@ public class AttrGroupController {
 
 
     /**
-     * 信息
+     * 返回属性分组单个实体的信息
+     * 这里返回的属性分组所在的三级分类的id, 但是并不是路径, 这里需要修改
+     *
+     * @param attrGroupId AttrGroupEntity的id
+     * @return AttrGroupEntity实体
      */
     @RequestMapping("/info/{attrGroupId}")
     public R info(@PathVariable("attrGroupId") Long attrGroupId) {
         AttrGroupEntity attrGroup = attrGroupService.getById(attrGroupId);
+
+        // categoryService具有的功能
+        Long[] catelogPath = categoryService.findCatelogPathByCatelogId(attrGroup.getCatelogId());
+
+        // 把所属分类的完整路径塞回去, 这时, 就想要一个service来提供这个功能了
+        attrGroup.setCatelogPath(catelogPath);
 
         return R.ok().put("attrGroup", attrGroup);
     }

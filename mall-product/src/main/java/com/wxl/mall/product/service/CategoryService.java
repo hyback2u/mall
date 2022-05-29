@@ -27,5 +27,13 @@ public interface CategoryService extends IService<CategoryEntity> {
 
 
     void removeConditionalByIds(List<Long> idList);
+
+    /**
+     * 根据三级分类id查询出该分类的完整路径
+     *
+     * @param catelogId 三级分类id
+     * @return Long[], 分类的完整路径
+     */
+    Long[] findCatelogPathByCatelogId(Long catelogId);
 }
 

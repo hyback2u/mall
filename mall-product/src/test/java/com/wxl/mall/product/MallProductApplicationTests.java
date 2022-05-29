@@ -7,18 +7,22 @@ package com.wxl.mall.product;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.wxl.mall.product.entity.BrandEntity;
 import com.wxl.mall.product.service.BrandService;
+import com.wxl.mall.product.service.CategoryService;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.util.Arrays;
 import java.util.List;
 
 /**
  * @author wangxl
  * @since 2022/4/30 14:48
  */
+@Slf4j
 @RunWith(SpringRunner.class)
 @SpringBootTest
 public class MallProductApplicationTests {
@@ -28,6 +32,19 @@ public class MallProductApplicationTests {
 
 //    @Autowired
 //    OSSClient ossClient;
+
+    @Autowired
+    CategoryService categoryService;
+
+    /**
+     * 测试:根据三级分类id查询出该分类的完整路径
+     * ************完整路径: [2, 35, 227]
+     */
+    @Test
+    public void findPathTest() {
+        Long[] path = categoryService.findCatelogPathByCatelogId(227L);
+        log.info("************完整路径: {}", Arrays.toString(path));
+    }
 
 
     /**
