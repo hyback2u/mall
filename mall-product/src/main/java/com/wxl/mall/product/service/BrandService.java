@@ -22,6 +22,6 @@ public interface BrandService extends IService<BrandEntity> {
      *
      * @param brand brand实例
      */
-    void updateDetail(BrandEntity brand);
+    void updateCascade(BrandEntity brand);
 }
 

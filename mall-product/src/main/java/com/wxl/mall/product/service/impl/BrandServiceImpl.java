@@ -53,7 +53,7 @@ public class BrandServiceImpl extends ServiceImpl<BrandDao, BrandEntity> impleme
      * @param brand brand实例
      */
     @Override
-    public void updateDetail(BrandEntity brand) {
+    public void updateCascade(BrandEntity brand) {
         // 保证冗余字段的数据一致
         // 1、更新自身表的数据信息
         this.updateById(brand);
