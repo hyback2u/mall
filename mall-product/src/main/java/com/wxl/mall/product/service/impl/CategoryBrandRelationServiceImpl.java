@@ -73,4 +73,15 @@ public class CategoryBrandRelationServiceImpl extends ServiceImpl<CategoryBrandR
         this.update(categoryBrandRelation, new UpdateWrapper<CategoryBrandRelationEntity>().eq("brand_id", brandId));
     }
 
+    /**
+     * 分类实例更新后, 更新关联的品牌分类关系表
+     *
+     * @param catId 分类实例id
+     * @param name  分类更新后的名称
+     */
+    @Override
+    public void updateCategory(Long catId, String name) {
+        this.baseMapper.updateCategory(catId, name);
+    }
+
 }

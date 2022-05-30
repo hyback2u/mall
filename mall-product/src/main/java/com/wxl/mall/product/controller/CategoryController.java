@@ -70,10 +70,12 @@ public class CategoryController {
 
     /**
      * 修改
+     * 在更新分类实例的同时, 更新关联的所有的冗余表
      */
     @RequestMapping("/update")
     public R update(@RequestBody CategoryEntity category) {
-        categoryService.updateById(category);
+        // 级联更新所有的关联数据
+        categoryService.updateCascade(category);
 
         return R.ok();
     }

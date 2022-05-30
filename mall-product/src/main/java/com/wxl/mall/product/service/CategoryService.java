@@ -35,5 +35,13 @@ public interface CategoryService extends IService<CategoryEntity> {
      * @return Long[], 分类的完整路径
      */
     Long[] findCatelogPathByCatelogId(Long catelogId);
+
+    /**
+     * 在更新分类实例的同时, 更新关联的所有的冗余表, 保证冗余字段的数据一致
+     * [即:级联更新所有关联的数据]
+     *
+     * @param category 分类实例
+     */
+    void updateCascade(CategoryEntity category);
 }
 

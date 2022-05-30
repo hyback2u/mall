@@ -7,16 +7,22 @@ import com.wxl.common.utils.PageUtils;
 import com.wxl.common.utils.Query;
 import com.wxl.mall.product.dao.CategoryDao;
 import com.wxl.mall.product.entity.CategoryEntity;
+import com.wxl.mall.product.service.CategoryBrandRelationService;
 import com.wxl.mall.product.service.CategoryService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
 import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
 @Service("categoryService")
 public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity> implements CategoryService {
+
+    @Resource
+    private CategoryBrandRelationService categoryBrandRelationService;
 
     // 这是最原始的写法, 但是因为已经继承了ServiceImpl, 且该实现加入了泛型CategoryDao的实现
 //    @Resource
@@ -85,6 +91,27 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
 
         Long[] catelogPath = new Long[parentPath.size()];
         return parentPath.toArray(catelogPath);
+    }
+
+    /**
+     * 在更新分类实例的同时, 更新关联的所有的冗余表, 保证冗余字段的数据一致
+     *
+     * @param category 分类实例
+     */
+    @Override
+    public void updateCascade(CategoryEntity category) {
+        // 1、更新自身的表
+        this.updateById(category);
+
+        // 2、如果分类名修改了, 数据同步更新关联的冗余表
+        if (StringUtils.isBlank(category.getName())) {
+            return;
+        }
+
+        // 数据同步更新关联的冗余表
+        categoryBrandRelationService.updateCategory(category.getCatId(), category.getName());
+
+        // todo 其它要更新的关联表...
     }
 
     /**

@@ -31,5 +31,13 @@ public interface CategoryBrandRelationService extends IService<CategoryBrandRela
      * @param name    修改后的品牌名
      */
     void updateBrand(Long brandId, String name);
+
+    /**
+     * 分类实例更新后, 更新关联的冗余表
+     *
+     * @param catId 分类实例id
+     * @param name  分类更新后的名称
+     */
+    void updateCategory(Long catId, String name);
 }
 
