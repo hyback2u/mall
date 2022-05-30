@@ -4,6 +4,7 @@ import com.wxl.common.utils.PageUtils;
 import com.wxl.common.utils.R;
 import com.wxl.mall.product.entity.AttrEntity;
 import com.wxl.mall.product.service.AttrService;
+import com.wxl.mall.product.vo.AttrResponseVO;
 import com.wxl.mall.product.vo.AttrVO;
 import org.springframework.web.bind.annotation.*;
 
@@ -57,9 +58,11 @@ public class AttrController {
      */
     @RequestMapping("/info/{attrId}")
     public R info(@PathVariable("attrId") Long attrId) {
-        AttrEntity attr = attrService.getById(attrId);
+        // 这里返回的信息比较简单, 注释掉使用getAttrInfo()
+//        AttrEntity attr = attrService.getById(attrId);
+        AttrResponseVO attrRespVO = attrService.getAttrInfo(attrId);
 
-        return R.ok().put("attr", attr);
+        return R.ok().put("attr", attrRespVO);
     }
 
 //    /**

@@ -14,6 +14,7 @@ import com.wxl.mall.product.entity.AttrEntity;
 import com.wxl.mall.product.entity.AttrGroupEntity;
 import com.wxl.mall.product.entity.CategoryEntity;
 import com.wxl.mall.product.service.AttrService;
+import com.wxl.mall.product.service.CategoryService;
 import com.wxl.mall.product.vo.AttrResponseVO;
 import com.wxl.mall.product.vo.AttrVO;
 import org.apache.commons.lang.StringUtils;
@@ -24,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.Resource;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 
@@ -38,6 +40,9 @@ public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements
 
     @Resource
     private CategoryDao categoryDao;
+
+    @Resource
+    private CategoryService categoryService;
 
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
@@ -102,8 +107,7 @@ public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements
             // 1、设置基本数据
             BeanUtils.copyProperties(attrEntity, attrRespVO);
             // 2、设置分类和分组的名字
-            AttrAttrgroupRelationEntity relationEntity = attrAttrgroupRelationDao.selectOne(new QueryWrapper<AttrAttrgroupRelationEntity>()
-                    .eq("attr_id", attrEntity.getAttrId()));
+            AttrAttrgroupRelationEntity relationEntity = attrAttrgroupRelationDao.selectOne(new QueryWrapper<AttrAttrgroupRelationEntity>().eq("attr_id", attrEntity.getAttrId()));
             if (null != relationEntity && null != relationEntity.getAttrGroupId()) {
                 AttrGroupEntity attrGroupEntity = attrGroupDao.selectById(relationEntity.getAttrGroupId());
                 attrRespVO.setGroupName(attrGroupEntity.getAttrGroupName());
@@ -121,6 +125,43 @@ public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements
         pageUtils.setList(attrResponseVOList);
 
         return pageUtils;
+    }
+
+    /**
+     * 根据属性实体id, 查询基础信息后组装所在分类全路径
+     *
+     * @param attrId 属性实体id
+     * @return 关联一些其它信息后以AttrResponseVO返回
+     */
+    @Override
+    public AttrResponseVO getAttrInfo(Long attrId) {
+        AttrResponseVO attrRespVO = new AttrResponseVO();
+        // 1、基础信息
+        AttrEntity attrEntity = this.getById(attrId);
+        BeanUtils.copyProperties(attrEntity, attrRespVO);
+
+        // 2、AttrResponseVO塞值: (1):分组信息 (2)所属分类全路径
+        AttrAttrgroupRelationEntity relationEntity = attrAttrgroupRelationDao.selectOne(new QueryWrapper<AttrAttrgroupRelationEntity>().eq("attr_id", attrId));
+        // (1):设置分组信息
+        if (Objects.nonNull(relationEntity)) {
+            attrRespVO.setAttrGroupId(relationEntity.getAttrGroupId());
+            // 当前分组详细信息
+            AttrGroupEntity attrGroupEntity = attrGroupDao.selectById(relationEntity.getAttrGroupId());
+            if (Objects.nonNull(attrGroupEntity)) {
+                attrRespVO.setAttrName(attrGroupEntity.getAttrGroupName());
+            }
+        }
+
+        // (2)所属分类全路径
+        Long catelogId = attrEntity.getCatelogId();
+        Long[] catelogPath = categoryService.findCatelogPathByCatelogId(catelogId);
+        CategoryEntity categoryEntity = categoryDao.selectById(catelogId);
+        if (Objects.nonNull(categoryEntity)) {
+            attrRespVO.setCatelogPath(catelogPath);
+        }
+        attrRespVO.setCatelogName(categoryEntity.getName());
+
+        return attrRespVO;
     }
 
 }

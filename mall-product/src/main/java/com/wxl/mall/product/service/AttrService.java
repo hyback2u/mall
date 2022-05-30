@@ -3,6 +3,7 @@ package com.wxl.mall.product.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.wxl.common.utils.PageUtils;
 import com.wxl.mall.product.entity.AttrEntity;
+import com.wxl.mall.product.vo.AttrResponseVO;
 import com.wxl.mall.product.vo.AttrVO;
 
 import java.util.Map;
@@ -33,5 +34,13 @@ public interface AttrService extends IService<AttrEntity> {
      * @return PageUtils
      */
     PageUtils queryBaseAttrPage(Map<String, Object> params, Long catelogId);
+
+    /**
+     * 根据属性实体id, 查询基础信息后组装所在分类全路径
+     *
+     * @param attrId 属性实体id
+     * @return 关联一些其它信息后以AttrResponseVO返回
+     */
+    AttrResponseVO getAttrInfo(Long attrId);
 }
 
