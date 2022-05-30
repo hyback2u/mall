@@ -12,6 +12,7 @@ import com.wxl.mall.product.service.CategoryService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.*;
@@ -95,10 +96,13 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
 
     /**
      * 在更新分类实例的同时, 更新关联的所有的冗余表, 保证冗余字段的数据一致
+     * 这里需要开启MyBatisPlus中的事务注解, 这里才能使用事务
      *
      * @param category 分类实例
+     * @see com.wxl.mall.product.config.MyBatisPlusConfig 开启事务
      */
     @Override
+    @Transactional
     public void updateCascade(CategoryEntity category) {
         // 1、更新自身的表
         this.updateById(category);

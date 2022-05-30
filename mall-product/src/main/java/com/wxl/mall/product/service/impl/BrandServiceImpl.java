@@ -11,6 +11,7 @@ import com.wxl.mall.product.service.BrandService;
 import com.wxl.mall.product.service.CategoryBrandRelationService;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.Map;
@@ -49,10 +50,13 @@ public class BrandServiceImpl extends ServiceImpl<BrandDao, BrandEntity> impleme
 
     /**
      * 在更新品牌实例的同时, 更新关联的所有的冗余表, 保证冗余字段的数据一致
+     * 这里需要开启MyBatisPlus中的事务注解, 这里才能使用事务
      *
      * @param brand brand实例
+     * @see com.wxl.mall.product.config.MyBatisPlusConfig 开启事务
      */
     @Override
+    @Transactional
     public void updateCascade(BrandEntity brand) {
         // 保证冗余字段的数据一致
         // 1、更新自身表的数据信息
