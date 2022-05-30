@@ -24,5 +24,14 @@ public interface AttrService extends IService<AttrEntity> {
      * @param attr AttrVO
      */
     void saveAttrVO(AttrVO attr);
+
+    /**
+     * 获取分类下的规格参数功能
+     *
+     * @param params    封装的查询参数
+     * @param catelogId 分类id
+     * @return PageUtils
+     */
+    PageUtils queryBaseAttrPage(Map<String, Object> params, Long catelogId);
 }
 
