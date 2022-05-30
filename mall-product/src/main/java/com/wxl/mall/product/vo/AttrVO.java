@@ -1,27 +1,25 @@
-package com.wxl.mall.product.entity;
+package com.wxl.mall.product.vo;
 
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+import lombok.AllArgsConstructor;
 import lombok.Data;
-
-import java.io.Serializable;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 /**
- * 商品属性
+ * 属性Attr的VO
  *
  * @author wangxl
- * @email 1919543837@qq.com
- * @date 2022-04-30 11:20:00
+ * @since 2022/5/30 22:39
  */
 @Data
-@TableName("pms_attr")
-public class AttrEntity implements Serializable {
-    private static final long serialVersionUID = 1L;
+@AllArgsConstructor
+@NoArgsConstructor
+@ToString
+public class AttrVO {
 
     /**
      * 属性id
      */
-    @TableId
     private Long attrId;
 
     /**
@@ -64,7 +62,8 @@ public class AttrEntity implements Serializable {
      */
     private Integer showDesc;
 
-    // fixed:这里不这样写了, 新建vo包, AttrVO
-//    @TableField(exist = false)
-//    private Long attrGroupId;
+    /**
+     * 分组id
+     */
+    private Long attrGroupId;
 }

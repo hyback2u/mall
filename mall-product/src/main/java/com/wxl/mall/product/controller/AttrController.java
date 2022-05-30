@@ -4,6 +4,7 @@ import com.wxl.common.utils.PageUtils;
 import com.wxl.common.utils.R;
 import com.wxl.mall.product.entity.AttrEntity;
 import com.wxl.mall.product.service.AttrService;
+import com.wxl.mall.product.vo.AttrVO;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -45,12 +46,25 @@ public class AttrController {
         return R.ok().put("attr", attr);
     }
 
+//    /**
+//     * 保存
+//     */
+//    @RequestMapping("/save")
+//    public R save(@RequestBody AttrEntity attr) {
+//        attrService.save(attr);
+//
+//        return R.ok();
+//    }
+
     /**
-     * 保存
+     * 保存, 这里入参修改为VO, 为了能够多收集一些特定的需要的信息
+     *
+     * @param attr AttrVO, 可以收集来源于页面的这些数据
+     * @return message
      */
     @RequestMapping("/save")
-    public R save(@RequestBody AttrEntity attr) {
-        attrService.save(attr);
+    public R save(@RequestBody AttrVO attr) {
+        attrService.saveAttrVO(attr);
 
         return R.ok();
     }
