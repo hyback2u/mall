@@ -5,25 +5,58 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.wxl.common.utils.PageUtils;
 import com.wxl.common.utils.Query;
+import com.wxl.mall.product.dao.BrandDao;
 import com.wxl.mall.product.dao.CategoryBrandRelationDao;
+import com.wxl.mall.product.dao.CategoryDao;
+import com.wxl.mall.product.entity.BrandEntity;
 import com.wxl.mall.product.entity.CategoryBrandRelationEntity;
+import com.wxl.mall.product.entity.CategoryEntity;
 import com.wxl.mall.product.service.CategoryBrandRelationService;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
 import java.util.Map;
 
 
 @Service("categoryBrandRelationService")
 public class CategoryBrandRelationServiceImpl extends ServiceImpl<CategoryBrandRelationDao, CategoryBrandRelationEntity> implements CategoryBrandRelationService {
 
+    @Resource
+    private BrandDao brandDao;
+
+    @Resource
+    private CategoryDao categoryDao;
+
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
         IPage<CategoryBrandRelationEntity> page = this.page(
                 new Query<CategoryBrandRelationEntity>().getPage(params),
-                new QueryWrapper<CategoryBrandRelationEntity>()
+                new QueryWrapper<>()
         );
 
         return new PageUtils(page);
+    }
+
+    /**
+     * 新增品牌与分类的关联关系
+     *
+     * @param categoryBrandRelation 关联关系
+     */
+    @Override
+    public void saveDetail(CategoryBrandRelationEntity categoryBrandRelation) {
+        Long brandId = categoryBrandRelation.getBrandId();
+        Long catelogId = categoryBrandRelation.getCatelogId();
+
+        // 1、查询详细名字
+        BrandEntity brandEntity = brandDao.selectById(brandId);
+        CategoryEntity categoryEntity = categoryDao.selectById(catelogId);
+
+        // 2、塞值
+        categoryBrandRelation.setBrandName(brandEntity.getName());
+        categoryBrandRelation.setCatelogName(categoryEntity.getName());
+
+        // 3、调用保存 AR
+        this.save(categoryBrandRelation);
     }
 
 }
