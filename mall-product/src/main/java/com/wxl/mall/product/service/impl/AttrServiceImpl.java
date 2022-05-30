@@ -7,9 +7,14 @@ import com.wxl.common.utils.PageUtils;
 import com.wxl.common.utils.Query;
 import com.wxl.mall.product.dao.AttrAttrgroupRelationDao;
 import com.wxl.mall.product.dao.AttrDao;
+import com.wxl.mall.product.dao.AttrGroupDao;
+import com.wxl.mall.product.dao.CategoryDao;
 import com.wxl.mall.product.entity.AttrAttrgroupRelationEntity;
 import com.wxl.mall.product.entity.AttrEntity;
+import com.wxl.mall.product.entity.AttrGroupEntity;
+import com.wxl.mall.product.entity.CategoryEntity;
 import com.wxl.mall.product.service.AttrService;
+import com.wxl.mall.product.vo.AttrResponseVO;
 import com.wxl.mall.product.vo.AttrVO;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.BeanUtils;
@@ -17,7 +22,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 
 @Service("attrService")
@@ -25,6 +32,12 @@ public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements
 
     @Resource
     private AttrAttrgroupRelationDao attrAttrgroupRelationDao;
+
+    @Resource
+    private AttrGroupDao attrGroupDao;
+
+    @Resource
+    private CategoryDao categoryDao;
 
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
@@ -81,7 +94,33 @@ public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements
 
         IPage<AttrEntity> page = this.page(new Query<AttrEntity>().getPage(params), wrapper);
 
-        return new PageUtils(page);
+        // -------> 组装VO
+        PageUtils pageUtils = new PageUtils(page);
+        List<AttrEntity> records = page.getRecords();
+        List<AttrResponseVO> attrResponseVOList = records.stream().map(attrEntity -> {
+            AttrResponseVO attrRespVO = new AttrResponseVO();
+            // 1、设置基本数据
+            BeanUtils.copyProperties(attrEntity, attrRespVO);
+            // 2、设置分类和分组的名字
+            AttrAttrgroupRelationEntity relationEntity = attrAttrgroupRelationDao.selectOne(new QueryWrapper<AttrAttrgroupRelationEntity>()
+                    .eq("attr_id", attrEntity.getAttrId()));
+            if (null != relationEntity && null != relationEntity.getAttrGroupId()) {
+                AttrGroupEntity attrGroupEntity = attrGroupDao.selectById(relationEntity.getAttrGroupId());
+                attrRespVO.setGroupName(attrGroupEntity.getAttrGroupName());
+            }
+
+            CategoryEntity categoryEntity = categoryDao.selectById(attrEntity.getCatelogId());
+            if (null != categoryEntity) {
+                attrRespVO.setCatelogName(categoryEntity.getName());
+            }
+
+            return attrRespVO;
+        }).collect(Collectors.toList());
+
+        // 替换处理后的数据
+        pageUtils.setList(attrResponseVOList);
+
+        return pageUtils;
     }
 
 }
