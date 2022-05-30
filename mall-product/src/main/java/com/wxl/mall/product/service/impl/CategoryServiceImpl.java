@@ -46,7 +46,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
                 // 2、collect收集之前, 改变菜单里的一些属性, 这里通过map将每一个菜单里的内容改变一下 map->peek, 少了一个return
                 .peek(categoryEntity -> {
                     // 将当前菜单的子分类保存进去
-                    categoryEntity.setChildCategoryEntity(getChildCategoryEntityList(categoryEntity, categoryEntityList));
+                    categoryEntity.setChild(getChildCategoryEntityList(categoryEntity, categoryEntityList));
                 })
                 // 3、排序: (menu1, menu2) -> {return menu1.getSort() - menu2.getSort(); }
                 // fixed.NPE 优化前:.sorted((menu1, menu2) -> (menu1.getSort() == null ? 0 : menu1.getSort()) - (menu2.getSort() == null ? 0 : menu2.getSort()))
@@ -121,7 +121,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
                 // fixme: 优化前:.filter(categoryEntity -> categoryEntity.getParentCid() == root.getCatId())
                 .filter(categoryEntity -> Objects.equals(categoryEntity.getParentCid(), root.getCatId()))
                 // 2、子菜单还有可能有子菜单, 这里为每一个菜单找到它的子菜单(同样是map->peek)
-                .peek(categoryEntity -> categoryEntity.setChildCategoryEntity(getChildCategoryEntityList(categoryEntity, all)))
+                .peek(categoryEntity -> categoryEntity.setChild(getChildCategoryEntityList(categoryEntity, all)))
                 // 3、排序
                 .sorted(Comparator.comparingInt(menu -> (menu.getSort() == null ? 0 : menu.getSort()))).collect(Collectors.toList());
     }
