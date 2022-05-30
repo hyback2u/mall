@@ -1,6 +1,7 @@
 package com.wxl.mall.product.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.wxl.common.utils.PageUtils;
@@ -29,10 +30,7 @@ public class CategoryBrandRelationServiceImpl extends ServiceImpl<CategoryBrandR
 
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
-        IPage<CategoryBrandRelationEntity> page = this.page(
-                new Query<CategoryBrandRelationEntity>().getPage(params),
-                new QueryWrapper<>()
-        );
+        IPage<CategoryBrandRelationEntity> page = this.page(new Query<CategoryBrandRelationEntity>().getPage(params), new QueryWrapper<>());
 
         return new PageUtils(page);
     }
@@ -57,6 +55,22 @@ public class CategoryBrandRelationServiceImpl extends ServiceImpl<CategoryBrandR
 
         // 3、调用保存 AR
         this.save(categoryBrandRelation);
+    }
+
+    /**
+     * 品牌实体更改后, 进行关联的表冗余信息更新
+     *
+     * @param brandId 更新了品牌名的品牌实体id
+     * @param name    修改后的品牌名
+     */
+    @Override
+    public void updateBrand(Long brandId, String name) {
+        CategoryBrandRelationEntity categoryBrandRelation = new CategoryBrandRelationEntity();
+        categoryBrandRelation.setBrandId(brandId);
+        categoryBrandRelation.setBrandName(name);
+
+        // new UpdateWrapper<>():更新条件, 即更新表中所有的品牌id等于这个的数据
+        this.update(categoryBrandRelation, new UpdateWrapper<CategoryBrandRelationEntity>().eq("brand_id", brandId));
     }
 
 }

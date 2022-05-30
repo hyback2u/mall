@@ -66,10 +66,12 @@ public class BrandController {
 
     /**
      * 修改
+     * 在更新品牌实例的同时, 更新关联的所有的冗余表
      */
     @RequestMapping("/update")
     public R update(@Validated(UpdateGroup.class) @RequestBody BrandEntity brand) {
-        brandService.updateById(brand);
+//        brandService.updateById(brand);
+        brandService.updateDetail(brand);
 
         return R.ok();
     }
