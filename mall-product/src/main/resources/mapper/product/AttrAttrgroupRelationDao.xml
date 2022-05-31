@@ -3,13 +3,27 @@
 
 <mapper namespace="com.wxl.mall.product.dao.AttrAttrgroupRelationDao">
 
-	<!-- 可根据自己的需求，是否要使用 -->
+    <!-- 可根据自己的需求，是否要使用 -->
     <resultMap type="com.wxl.mall.product.entity.AttrAttrgroupRelationEntity" id="attrAttrgroupRelationMap">
         <result property="id" column="id"/>
         <result property="attrId" column="attr_id"/>
         <result property="attrGroupId" column="attr_group_id"/>
         <result property="attrSort" column="attr_sort"/>
     </resultMap>
+
+    <!--
+    DELETE FROM `pms_attr_attrgroup_relation`
+    WHERE (`attr_id` = ? AND attr_group_id = ?)
+    OR(`attr_id` = ? AND attr_group_id = ?)
+    -->
+    <delete id="deleteBatchRelation">
+        delete
+        from `pms_attr_attrgroup_relation`
+        where
+        <foreach collection="relationEntities" item="item" separator=" or ">
+            (`attr_id` = #{item.attrId} and `attr_group_id` = #{item.attrGroupId})
+        </foreach>
+    </delete>
 
 
 </mapper>

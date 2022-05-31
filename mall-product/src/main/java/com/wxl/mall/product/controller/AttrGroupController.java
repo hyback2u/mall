@@ -2,14 +2,18 @@ package com.wxl.mall.product.controller;
 
 import com.wxl.common.utils.PageUtils;
 import com.wxl.common.utils.R;
+import com.wxl.mall.product.entity.AttrEntity;
 import com.wxl.mall.product.entity.AttrGroupEntity;
 import com.wxl.mall.product.service.AttrGroupService;
+import com.wxl.mall.product.service.AttrService;
 import com.wxl.mall.product.service.CategoryService;
+import com.wxl.mall.product.vo.AttrGroupRelationVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 
@@ -30,6 +34,36 @@ public class AttrGroupController {
     @Resource
     private CategoryService categoryService;
 
+    @Resource
+    private AttrService attrService;
+
+
+    /**
+     * 删除属性与分组的关联关系
+     * todo @RequestBody在这里的作用是啥来着...
+     *
+     * @param vos 数组, 提交过来的是多个值(因为, 既有单个, 也有批量, 批量兼容单个)
+     * @return message
+     */
+    @PostMapping(value = "/attr/relation/delete")
+    public R deleteRelation(@RequestBody AttrGroupRelationVO[] vos) {
+        attrService.deleteRelation(vos);
+
+        return R.ok();
+    }
+
+    /**
+     * 获取属性分组的关联的所有属性
+     *
+     * @param attrgroupId 属性分组id
+     * @return data
+     */
+    @GetMapping(value = "/{attrgroupId}/attr/relation")
+    public R attrRelation(@PathVariable("attrgroupId") Long attrgroupId) {
+        List<AttrEntity> entities = attrService.getRelationAttr(attrgroupId);
+
+        return R.ok().put("data", entities);
+    }
 
     /**
      * 根据三级分类id列举分类下的属性
@@ -39,8 +73,7 @@ public class AttrGroupController {
      * @return message&data
      */
     @RequestMapping("/list/{categoryId}")
-    public R list(@RequestParam Map<String, Object> params,
-                  @PathVariable("categoryId") Long categoryId) {
+    public R list(@RequestParam Map<String, Object> params, @PathVariable("categoryId") Long categoryId) {
         log.info("**************list(), categoryId = {}", categoryId);
         PageUtils page = attrGroupService.queryPage(params, categoryId);
 

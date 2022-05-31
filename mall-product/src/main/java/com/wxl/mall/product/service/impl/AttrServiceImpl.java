@@ -18,6 +18,7 @@ import com.wxl.mall.product.entity.AttrGroupEntity;
 import com.wxl.mall.product.entity.CategoryEntity;
 import com.wxl.mall.product.service.AttrService;
 import com.wxl.mall.product.service.CategoryService;
+import com.wxl.mall.product.vo.AttrGroupRelationVO;
 import com.wxl.mall.product.vo.AttrResponseVO;
 import com.wxl.mall.product.vo.AttrVO;
 import lombok.extern.slf4j.Slf4j;
@@ -27,9 +28,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -110,9 +109,7 @@ public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements
         }
 
         // 基本属性 or 销售属性
-        wrapper.and((x) -> x.eq("attr_type",
-                "base".equalsIgnoreCase(attrType) ? ProductConstant.AttrEnum.ATTR_TYPE_BASE.getCode()
-                        : ProductConstant.AttrEnum.ATTR_TYPE_SALE.getCode()));
+        wrapper.and((x) -> x.eq("attr_type", "base".equalsIgnoreCase(attrType) ? ProductConstant.AttrEnum.ATTR_TYPE_BASE.getCode() : ProductConstant.AttrEnum.ATTR_TYPE_SALE.getCode()));
 
         IPage<AttrEntity> page = this.page(new Query<AttrEntity>().getPage(params), wrapper);
 
@@ -213,12 +210,50 @@ public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements
 
         if (count > 0) {
             // 修改
-            attrAttrgroupRelationDao.update(relationEntity,
-                    new UpdateWrapper<AttrAttrgroupRelationEntity>().eq("attr_id", attrResponseVO.getAttrId()));
+            attrAttrgroupRelationDao.update(relationEntity, new UpdateWrapper<AttrAttrgroupRelationEntity>().eq("attr_id", attrResponseVO.getAttrId()));
         } else {
             // 新增
             attrAttrgroupRelationDao.insert(relationEntity);
         }
+    }
+
+    /**
+     * 根据分组id, 找到组内所有的属性实体信息
+     *
+     * @param attrgroupId 属性分组id
+     * @return AttrEntityList
+     */
+    @Override
+    public List<AttrEntity> getRelationAttr(Long attrgroupId) {
+        List<AttrAttrgroupRelationEntity> entities =
+                attrAttrgroupRelationDao.selectList(new QueryWrapper<AttrAttrgroupRelationEntity>().eq("attr_group_id", attrgroupId));
+
+        List<Long> ids = entities.stream().map(AttrAttrgroupRelationEntity::getAttrId).collect(Collectors.toList());
+        Collection<AttrEntity> attrEntities = this.listByIds(ids);
+
+        return (List<AttrEntity>) attrEntities;
+    }
+
+    /**
+     * 删除属性与分组的关联关系
+     *
+     * @param vos vos 数组, 提交过来的是多个值(因为, 既有单个, 也有批量, 批量兼容单个)
+     */
+    @Override
+    public void deleteRelation(AttrGroupRelationVO[] vos) {
+        // 这样写会发送很多次删除请求 todo why？
+//        attrAttrgroupRelationDao.delete(new QueryWrapper<AttrAttrgroupRelationEntity>()
+//                .eq("attr_id", 1L)
+//                .eq("attr_group_id", 1L));
+
+        // 希望只发送一次请求 todo:这里与老师不一样也可以呀...
+        List<AttrAttrgroupRelationEntity> relationEntities = Arrays.stream(vos).map(item -> {
+            AttrAttrgroupRelationEntity relationEntity = new AttrAttrgroupRelationEntity();
+            BeanUtils.copyProperties(item, relationEntity);
+            return relationEntity;
+        }).collect(Collectors.toList());
+
+        attrAttrgroupRelationDao.deleteBatchRelation(relationEntities);
     }
 
 }
