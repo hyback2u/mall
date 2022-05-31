@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.wxl.common.constant.ProductConstant;
 import com.wxl.common.utils.PageUtils;
 import com.wxl.common.utils.Query;
 import com.wxl.mall.product.dao.AttrAttrgroupRelationDao;
@@ -71,7 +72,13 @@ public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements
         // 1、向attr表中, 保存基础信息
         this.save(attrEntity);
 
-        // 2、保存关联关系
+        // 2、保存关联关系, fixed这里如果当前页面提交的attrVO里的类型是销售属性, 下面就不需要做了
+//        if (!attr.getAttrType().equals(1)) {  todo:这里保持好习惯, 不使用魔法值~
+        if (attr.getAttrType().equals(ProductConstant.AttrEnum.ATTR_TYPE_SALE.getCode())) {
+            // 如果是销售属性, 就此终止
+            return;
+        }
+
         AttrAttrgroupRelationEntity relationEntity = new AttrAttrgroupRelationEntity();
         relationEntity.setAttrGroupId(attr.getAttrGroupId());
         relationEntity.setAttrId(attrEntity.getAttrId());
@@ -83,11 +90,12 @@ public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements
      * 获取分类下的规格参数功能
      *
      * @param params    封装的查询参数
+     * @param attrType  0-销售属性，1-基本属性
      * @param catelogId 分类id
      * @return PageUtils
      */
     @Override
-    public PageUtils queryBaseAttrPage(Map<String, Object> params, Long catelogId) {
+    public PageUtils queryBaseAttrPage(Map<String, Object> params, String attrType, Long catelogId) {
         QueryWrapper<AttrEntity> wrapper = new QueryWrapper<>();
 
         String key = (String) params.get("key");
@@ -101,6 +109,11 @@ public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements
             wrapper.and((x) -> x.eq("catelog_id", catelogId));
         }
 
+        // 基本属性 or 销售属性
+        wrapper.and((x) -> x.eq("attr_type",
+                "base".equalsIgnoreCase(attrType) ? ProductConstant.AttrEnum.ATTR_TYPE_BASE.getCode()
+                        : ProductConstant.AttrEnum.ATTR_TYPE_SALE.getCode()));
+
         IPage<AttrEntity> page = this.page(new Query<AttrEntity>().getPage(params), wrapper);
 
         // -------> 组装VO
@@ -110,7 +123,7 @@ public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements
             AttrResponseVO attrRespVO = new AttrResponseVO();
             // 1、设置基本数据
             BeanUtils.copyProperties(attrEntity, attrRespVO);
-            // 2、设置分类和分组的名字
+            // 2、设置分类和分组的名字 fixme:销售属性查询是不需要设置分组信息的, 这里是根据非空判断的
             AttrAttrgroupRelationEntity relationEntity = attrAttrgroupRelationDao.selectOne(new QueryWrapper<AttrAttrgroupRelationEntity>().eq("attr_id", attrEntity.getAttrId()));
             if (null != relationEntity && null != relationEntity.getAttrGroupId()) {
                 AttrGroupEntity attrGroupEntity = attrGroupDao.selectById(relationEntity.getAttrGroupId());
@@ -149,13 +162,15 @@ public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements
 
         // 2、AttrResponseVO塞值: (1):分组信息 (2)所属分类全路径
         AttrAttrgroupRelationEntity relationEntity = attrAttrgroupRelationDao.selectOne(new QueryWrapper<AttrAttrgroupRelationEntity>().eq("attr_id", attrId));
-        // (1):设置分组信息
-        if (Objects.nonNull(relationEntity)) {
-            attrRespVO.setAttrGroupId(relationEntity.getAttrGroupId());
-            // 当前分组详细信息
-            AttrGroupEntity attrGroupEntity = attrGroupDao.selectById(relationEntity.getAttrGroupId());
-            if (Objects.nonNull(attrGroupEntity)) {
-                attrRespVO.setGroupName(attrGroupEntity.getAttrGroupName());
+        // (1):设置分组信息 fixed:销售属性不需要
+        if (attrEntity.getAttrType().equals(ProductConstant.AttrEnum.ATTR_TYPE_BASE.getCode())) {
+            if (Objects.nonNull(relationEntity)) {
+                attrRespVO.setAttrGroupId(relationEntity.getAttrGroupId());
+                // 当前分组详细信息
+                AttrGroupEntity attrGroupEntity = attrGroupDao.selectById(relationEntity.getAttrGroupId());
+                if (Objects.nonNull(attrGroupEntity)) {
+                    attrRespVO.setGroupName(attrGroupEntity.getAttrGroupName());
+                }
             }
         }
 
@@ -183,6 +198,11 @@ public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements
         BeanUtils.copyProperties(attrResponseVO, attrEntity);
         // 1、修改基本信息
         this.updateById(attrEntity);
+
+        // fixed: 如果是销售属性, 就此终止
+        if (attrResponseVO.getAttrType().equals(ProductConstant.AttrEnum.ATTR_TYPE_SALE.getCode())) {
+            return;
+        }
 
         // 2、修改/新增 分组关联(针对于本来就没有的记录的操作优化)
         Integer count = attrAttrgroupRelationDao.selectCount(new UpdateWrapper<AttrAttrgroupRelationEntity>().eq("attr_id", attrResponseVO.getAttrId()));

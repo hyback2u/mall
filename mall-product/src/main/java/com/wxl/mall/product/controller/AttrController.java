@@ -32,14 +32,23 @@ public class AttrController {
     /**
      * 获取分类下的规格参数功能[分页查询] xxxPage
      * eg:http://localhost:88/api/product/attr/base/list/0?t=1653922340504&page=1&limit=10&key=
+     * <p>
+     * 获取分类销售属性:/product/attr/sale/list/{catelogId}, 唯一变的是: base/sale
+     * 这里抽取为一个方法:
+     * 1、原始: @GetMapping("/base/list/{catelogId}")
+     * 2、修改: @GetMapping("/{attrType}}/list/{catelogId}")
      *
+     * @param attrType  0-销售属性，1-基本属性
      * @param params    封装的查询参数
      * @param catelogId 分类id
      * @return message
      */
-    @GetMapping("/base/list/{catelogId}")
-    public R baseList(@RequestParam Map<String, Object> params, @PathVariable("catelogId") Long catelogId) {
-        PageUtils page = attrService.queryBaseAttrPage(params, catelogId);
+    @GetMapping("/{attrType}/list/{catelogId}")
+    public R baseList(@RequestParam Map<String, Object> params,
+                      @PathVariable("attrType") String attrType,
+                      @PathVariable("catelogId") Long catelogId) {
+        log.info("*************attrType = {}, catelogId = {}", attrType, catelogId);
+        PageUtils page = attrService.queryBaseAttrPage(params, attrType, catelogId);
 
         return R.ok().put("page", page);
     }

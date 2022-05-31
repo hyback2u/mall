@@ -30,10 +30,11 @@ public interface AttrService extends IService<AttrEntity> {
      * 获取分类下的规格参数功能
      *
      * @param params    封装的查询参数
+     * @param attrType 0-销售属性，1-基本属性
      * @param catelogId 分类id
      * @return PageUtils
      */
-    PageUtils queryBaseAttrPage(Map<String, Object> params, Long catelogId);
+    PageUtils queryBaseAttrPage(Map<String, Object> params, String attrType, Long catelogId);
 
     /**
      * 根据属性实体id, 查询基础信息后组装所在分类全路径
