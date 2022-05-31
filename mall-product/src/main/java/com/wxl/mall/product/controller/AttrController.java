@@ -1,11 +1,12 @@
 package com.wxl.mall.product.controller;
 
+import com.alibaba.fastjson.JSON;
 import com.wxl.common.utils.PageUtils;
 import com.wxl.common.utils.R;
-import com.wxl.mall.product.entity.AttrEntity;
 import com.wxl.mall.product.service.AttrService;
 import com.wxl.mall.product.vo.AttrResponseVO;
 import com.wxl.mall.product.vo.AttrVO;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -20,6 +21,7 @@ import java.util.Map;
  * @email 1919543837@qq.com
  * @date 2022-04-30 11:20:00
  */
+@Slf4j
 @RestController
 @RequestMapping("product/attr")
 public class AttrController {
@@ -88,12 +90,28 @@ public class AttrController {
         return R.ok();
     }
 
+//    /**
+//     * 修改
+//     */
+//    @RequestMapping("/update")
+//    public R update(@RequestBody AttrEntity attr) {
+//        attrService.updateById(attr);
+//
+//        return R.ok();
+//    }
+
+
     /**
-     * 修改
+     * update修改
+     *
+     * @param attrResponseVO vo, 封装更新信息的vo
+     * @return message
      */
     @RequestMapping("/update")
-    public R update(@RequestBody AttrEntity attr) {
-        attrService.updateById(attr);
+    public R update(@RequestBody AttrResponseVO attrResponseVO) {
+//        attrService.updateById(attr);
+        log.info("**********AttrController:update, params: {}", JSON.toJSONString(attrResponseVO));
+        attrService.updateAttr(attrResponseVO);
 
         return R.ok();
     }

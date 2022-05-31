@@ -1,6 +1,8 @@
 package com.wxl.mall.product.service.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.wxl.common.utils.PageUtils;
@@ -17,6 +19,7 @@ import com.wxl.mall.product.service.AttrService;
 import com.wxl.mall.product.service.CategoryService;
 import com.wxl.mall.product.vo.AttrResponseVO;
 import com.wxl.mall.product.vo.AttrVO;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
@@ -29,6 +32,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 
+@Slf4j
 @Service("attrService")
 public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements AttrService {
 
@@ -121,6 +125,9 @@ public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements
             return attrRespVO;
         }).collect(Collectors.toList());
 
+
+        log.info("*************AttrServiceImpl.queryBaseAttrPage, attrVOList = {}", JSON.toJSONString(attrResponseVOList));
+
         // 替换处理后的数据
         pageUtils.setList(attrResponseVOList);
 
@@ -148,7 +155,7 @@ public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements
             // 当前分组详细信息
             AttrGroupEntity attrGroupEntity = attrGroupDao.selectById(relationEntity.getAttrGroupId());
             if (Objects.nonNull(attrGroupEntity)) {
-                attrRespVO.setAttrName(attrGroupEntity.getAttrGroupName());
+                attrRespVO.setGroupName(attrGroupEntity.getAttrGroupName());
             }
         }
 
@@ -162,6 +169,36 @@ public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements
         attrRespVO.setCatelogName(categoryEntity.getName());
 
         return attrRespVO;
+    }
+
+    /**
+     * 修改
+     *
+     * @param attrResponseVO attrResponseVO
+     */
+    @Override
+    @Transactional
+    public void updateAttr(AttrResponseVO attrResponseVO) {
+        AttrEntity attrEntity = new AttrEntity();
+        BeanUtils.copyProperties(attrResponseVO, attrEntity);
+        // 1、修改基本信息
+        this.updateById(attrEntity);
+
+        // 2、修改/新增 分组关联(针对于本来就没有的记录的操作优化)
+        Integer count = attrAttrgroupRelationDao.selectCount(new UpdateWrapper<AttrAttrgroupRelationEntity>().eq("attr_id", attrResponseVO.getAttrId()));
+
+        AttrAttrgroupRelationEntity relationEntity = new AttrAttrgroupRelationEntity();
+        relationEntity.setAttrGroupId(attrResponseVO.getAttrGroupId());
+        relationEntity.setAttrId(attrResponseVO.getAttrId());
+
+        if (count > 0) {
+            // 修改
+            attrAttrgroupRelationDao.update(relationEntity,
+                    new UpdateWrapper<AttrAttrgroupRelationEntity>().eq("attr_id", attrResponseVO.getAttrId()));
+        } else {
+            // 新增
+            attrAttrgroupRelationDao.insert(relationEntity);
+        }
     }
 
 }

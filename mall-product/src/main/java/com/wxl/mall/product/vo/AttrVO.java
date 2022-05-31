@@ -38,6 +38,11 @@ public class AttrVO {
     private String icon;
 
     /**
+     * 单选多选
+     */
+    private String valueType;
+
+    /**
      * 可选值列表[用逗号分隔]
      */
     private String valueSelect;

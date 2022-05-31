@@ -3,12 +3,13 @@
 
 <mapper namespace="com.wxl.mall.product.dao.AttrDao">
 
-	<!-- 可根据自己的需求，是否要使用 -->
+    <!-- 可根据自己的需求，是否要使用 -->
     <resultMap type="com.wxl.mall.product.entity.AttrEntity" id="attrMap">
         <result property="attrId" column="attr_id"/>
         <result property="attrName" column="attr_name"/>
         <result property="searchType" column="search_type"/>
         <result property="icon" column="icon"/>
+        <result property="valueType" column="value_type"/>
         <result property="valueSelect" column="value_select"/>
         <result property="attrType" column="attr_type"/>
         <result property="enable" column="enable"/>
