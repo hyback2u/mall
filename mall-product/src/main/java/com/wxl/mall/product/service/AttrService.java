@@ -69,5 +69,14 @@ public interface AttrService extends IService<AttrEntity> {
      * @param vos vos 数组, 提交过来的是多个值(因为, 既有单个, 也有批量, 批量兼容单个)
      */
     void deleteRelation(AttrGroupRelationVO[] vos);
+
+    /**
+     * 获取属性分组没有关联的其他属性
+     *
+     * @param params      分页参数
+     * @param attrgroupId 属性分组id
+     * @return page
+     */
+    PageUtils getNoRelationAttr(Map<String, Object> params, Long attrgroupId);
 }
 

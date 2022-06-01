@@ -52,6 +52,21 @@ public class AttrGroupController {
         return R.ok();
     }
 
+
+    /**
+     * 查询属性分组没有关联的其他属性
+     *
+     * @param attrgroupId 属性分组id
+     * @return data
+     */
+    @GetMapping(value = "/{attrgroupId}/noattr/relation")
+    public R attrNoRelation(@RequestParam Map<String, Object> params,
+                            @PathVariable("attrgroupId") Long attrgroupId) {
+        PageUtils page = attrService.getNoRelationAttr(params, attrgroupId);
+
+        return R.ok().put("page", page);
+    }
+
     /**
      * 获取属性分组的关联的所有属性
      *

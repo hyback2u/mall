@@ -1,3 +1,4 @@
+
 server:
   port: 9000
 
@@ -7,6 +8,12 @@ spring:
     url: jdbc:mysql://192.168.56.10:3306/mall_oms?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai
     username: root
     password: root
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 127.0.0.1:8848 # 配置 Nacos Server 地址
+  application:
+    name: mall-order
 
 mybatis-plus:
   mapper-locations: classpath:/mapper/**/*.xml

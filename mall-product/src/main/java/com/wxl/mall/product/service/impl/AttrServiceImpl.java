@@ -225,10 +225,13 @@ public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements
      */
     @Override
     public List<AttrEntity> getRelationAttr(Long attrgroupId) {
-        List<AttrAttrgroupRelationEntity> entities =
-                attrAttrgroupRelationDao.selectList(new QueryWrapper<AttrAttrgroupRelationEntity>().eq("attr_group_id", attrgroupId));
+        List<AttrAttrgroupRelationEntity> entities = attrAttrgroupRelationDao.selectList(new QueryWrapper<AttrAttrgroupRelationEntity>().eq("attr_group_id", attrgroupId));
 
         List<Long> ids = entities.stream().map(AttrAttrgroupRelationEntity::getAttrId).collect(Collectors.toList());
+        // fixme:ids有可能是空的, 需要做非空判断
+        if (ids.size() == 0) {
+            return null;
+        }
         Collection<AttrEntity> attrEntities = this.listByIds(ids);
 
         return (List<AttrEntity>) attrEntities;
@@ -254,6 +257,49 @@ public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements
         }).collect(Collectors.toList());
 
         attrAttrgroupRelationDao.deleteBatchRelation(relationEntities);
+    }
+
+    /**
+     * 获取属性分组没有关联的其他属性
+     *
+     * @param params      分页参数
+     * @param attrgroupId 属性分组id
+     * @return page
+     */
+    @Override
+    public PageUtils getNoRelationAttr(Map<String, Object> params, Long attrgroupId) {
+        // 1、当前分组, 只能关联自己所属分类里面的所有属性
+        AttrGroupEntity attrGroupEntity = attrGroupDao.selectById(attrgroupId);
+        Long catelogId = attrGroupEntity.getCatelogId();
+        // 多余了是吧...
+//        List<AttrEntity> attrEntities = this.list(new QueryWrapper<AttrEntity>().eq("catelog_id", catelogId));
+
+        // 2、当前分组, 只能关联别的属性没有引用的属性
+        // 2.1 当前分类下的其它分组(还不能包含当前分组)
+        List<AttrGroupEntity> attrGroupEntities = attrGroupDao.selectList(new QueryWrapper<AttrGroupEntity>().eq("catelog_id", catelogId).ne("catelog_id", attrgroupId));
+        List<Long> groupIds = attrGroupEntities.stream().map(AttrGroupEntity::getAttrGroupId).collect(Collectors.toList());
+        // 2.2 这些分组关联的属性
+        List<AttrAttrgroupRelationEntity> relationEntities = attrAttrgroupRelationDao.selectList(new QueryWrapper<AttrAttrgroupRelationEntity>().in("attr_group_id", groupIds));
+        List<Long> attrIds = relationEntities.stream().map(AttrAttrgroupRelationEntity::getAttrId).collect(Collectors.toList());
+
+        // 2.3 从当前分类的所有属性中移除这些属性(这里我是想要在内存中处理来着...得, 避免不了, 这样刚开始就查了)
+        // fixme:notIn/in操作, 空集合会报错, 所以拼装前需要判断
+        QueryWrapper<AttrEntity> queryWrapper = new QueryWrapper<AttrEntity>()
+//                .eq("catelog_id", catelogId).notIn("attr_ids", attrIds);
+                .eq("catelog_id", catelogId);
+        if (attrIds.size() > 0) {
+            queryWrapper.and((x) -> x.notIn("attr_ids", attrIds));
+        }
+
+        // 页面如果有模糊查询
+        String key = (String) params.get("key");
+        if (StringUtils.isNotBlank(key)) {
+            queryWrapper.and((wrapper) -> wrapper.eq("attr_id", key).or().like("attr_name", key));
+        }
+
+        IPage<AttrEntity> page = this.page(new Query<AttrEntity>().getPage(params), queryWrapper);
+
+        return new PageUtils(page);
     }
 
 }
