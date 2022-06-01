@@ -4,9 +4,9 @@ import com.wxl.common.utils.PageUtils;
 import com.wxl.common.utils.R;
 import com.wxl.mall.product.entity.SpuInfoEntity;
 import com.wxl.mall.product.service.SpuInfoService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.Resource;
 import java.util.Arrays;
 import java.util.Map;
 
@@ -22,7 +22,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("product/spuinfo")
 public class SpuInfoController {
-    @Autowired
+    @Resource
     private SpuInfoService spuInfoService;
 
     /**
