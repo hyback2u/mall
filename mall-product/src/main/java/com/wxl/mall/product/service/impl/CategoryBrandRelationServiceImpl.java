@@ -16,7 +16,9 @@ import com.wxl.mall.product.service.CategoryBrandRelationService;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 
 @Service("categoryBrandRelationService")
@@ -82,6 +84,22 @@ public class CategoryBrandRelationServiceImpl extends ServiceImpl<CategoryBrandR
     @Override
     public void updateCategory(Long catId, String name) {
         this.baseMapper.updateCategory(catId, name);
+    }
+
+
+    /**
+     * 根据三级分类id查询关联的所有品牌
+     *
+     * @param catId 三级分类id
+     * @return BrandEntity数据集合
+     */
+    @Override
+    public List<BrandEntity> getBrandsByCatelogId(Long catId) {
+        List<CategoryBrandRelationEntity> relationEntities = this.list(new QueryWrapper<CategoryBrandRelationEntity>()
+                .eq("catelog_id", catId));
+        List<Long> brandIds = relationEntities.stream().map(CategoryBrandRelationEntity::getBrandId).collect(Collectors.toList());
+
+        return brandDao.selectBatchIds(brandIds);
     }
 
 }
