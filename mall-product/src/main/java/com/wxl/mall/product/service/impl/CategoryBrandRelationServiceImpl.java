@@ -99,6 +99,7 @@ public class CategoryBrandRelationServiceImpl extends ServiceImpl<CategoryBrandR
                 .eq("catelog_id", catId));
         List<Long> brandIds = relationEntities.stream().map(CategoryBrandRelationEntity::getBrandId).collect(Collectors.toList());
 
+        // 这里其实从关系表中就可以拿到, 但是为了通用性, 还是返回所有详细信息
         return brandDao.selectBatchIds(brandIds);
     }
 
