@@ -9,6 +9,7 @@ import com.wxl.mall.product.service.AttrGroupService;
 import com.wxl.mall.product.service.AttrService;
 import com.wxl.mall.product.service.CategoryService;
 import com.wxl.mall.product.vo.AttrGroupRelationVO;
+import com.wxl.mall.product.vo.AttrGroupWithAttrsVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
@@ -40,6 +41,23 @@ public class AttrGroupController {
 
     @Resource
     private AttrAttrgroupRelationService relationService;
+
+
+    /**
+     * 根据分类id查出所有的分组, 以及这些组里面的属性
+     *
+     * @param catelogId 三级分类id
+     * @return data -> VO
+     */
+    @GetMapping(value = "/{catelogId}/withattr")
+    public R getAttrGroupWithAttrs(@PathVariable("catelogId") Long catelogId) {
+        // 1、查出当前分类下的所有属性分组
+        // 2、查出每个分组下的所有属性
+        List<AttrGroupWithAttrsVO> vos = attrGroupService.getAttrGroupWithAttrsByCatelogId(catelogId);
+
+        return R.ok().put("data", vos);
+    }
+
 
     /**
      * 删除属性与分组的关联关系

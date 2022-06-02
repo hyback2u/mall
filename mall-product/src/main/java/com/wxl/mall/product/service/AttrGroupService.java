@@ -3,7 +3,9 @@ package com.wxl.mall.product.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.wxl.common.utils.PageUtils;
 import com.wxl.mall.product.entity.AttrGroupEntity;
+import com.wxl.mall.product.vo.AttrGroupWithAttrsVO;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -25,5 +27,14 @@ public interface AttrGroupService extends IService<AttrGroupEntity> {
      * @return message&data
      */
     PageUtils queryPage(Map<String, Object> params, Long categoryId);
+
+
+    /**
+     * 根据分类id查出所有的分组, 以及这些组里面的属性
+     *
+     * @param catelogId 三级分类id
+     * @return data -> VO
+     */
+    List<AttrGroupWithAttrsVO> getAttrGroupWithAttrsByCatelogId(Long catelogId);
 }
 

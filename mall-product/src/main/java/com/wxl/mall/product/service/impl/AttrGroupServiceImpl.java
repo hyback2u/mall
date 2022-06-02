@@ -6,16 +6,26 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.wxl.common.utils.PageUtils;
 import com.wxl.common.utils.Query;
 import com.wxl.mall.product.dao.AttrGroupDao;
+import com.wxl.mall.product.entity.AttrEntity;
 import com.wxl.mall.product.entity.AttrGroupEntity;
 import com.wxl.mall.product.service.AttrGroupService;
+import com.wxl.mall.product.service.AttrService;
+import com.wxl.mall.product.vo.AttrGroupWithAttrsVO;
 import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 
 @Service("attrGroupService")
 public class AttrGroupServiceImpl extends ServiceImpl<AttrGroupDao, AttrGroupEntity> implements AttrGroupService {
+
+    @Resource
+    private AttrService attrService;
 
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
@@ -60,6 +70,34 @@ public class AttrGroupServiceImpl extends ServiceImpl<AttrGroupDao, AttrGroupEnt
                 new Query<AttrGroupEntity>().getPage(params), wrapper);
 
         return new PageUtils(page);
+    }
+
+
+    /**
+     * 根据分类id查出所有的分组, 以及这些组里面的属性
+     *
+     * @param catelogId 三级分类id
+     * @return data -> VO
+     */
+    @Override
+    public List<AttrGroupWithAttrsVO> getAttrGroupWithAttrsByCatelogId(Long catelogId) {
+        // 1、查出当前分类下的所有属性分组
+        List<AttrGroupEntity> attrGroupEntityList = this.list(new QueryWrapper<AttrGroupEntity>()
+                .eq("catelog_id", catelogId));
+
+        // fixme:这里的话, for循环调用dao访问db？性能呢？
+        // 2、查出每个分组下的所有属性
+        return attrGroupEntityList.stream().map(group -> {
+            AttrGroupWithAttrsVO vo = new AttrGroupWithAttrsVO();
+            // 1.复制基本数据
+            BeanUtils.copyProperties(group, vo);
+
+            // 2.属性
+            List<AttrEntity> attrs = attrService.getRelationAttr(vo.getAttrGroupId());
+            vo.setAttrs(attrs);
+
+            return vo;
+        }).collect(Collectors.toList());
     }
 
 }
