@@ -73,7 +73,9 @@ public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements
 
         // 2、保存关联关系, fixed这里如果当前页面提交的attrVO里的类型是销售属性, 下面就不需要做了
 //        if (!attr.getAttrType().equals(1)) {  todo:这里保持好习惯, 不使用魔法值~
-        if (attr.getAttrType().equals(ProductConstant.AttrEnum.ATTR_TYPE_SALE.getCode())) {
+        // 0602: fixme fixed, just note:这里, 因为保存的时候, 所属分组不是必填的, 所以关系表保存与否要判断
+        if (attr.getAttrType().equals(ProductConstant.AttrEnum.ATTR_TYPE_SALE.getCode()) &&
+                null != attr.getAttrGroupId()) {
             // 如果是销售属性, 就此终止
             return;
         }
@@ -121,7 +123,9 @@ public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements
             // 1、设置基本数据
             BeanUtils.copyProperties(attrEntity, attrRespVO);
             // 2、设置分类和分组的名字 fixme:销售属性查询是不需要设置分组信息的, 这里是根据非空判断的
-            AttrAttrgroupRelationEntity relationEntity = attrAttrgroupRelationDao.selectOne(new QueryWrapper<AttrAttrgroupRelationEntity>().eq("attr_id", attrEntity.getAttrId()));
+            // todo fixme 这里, 有bug
+            AttrAttrgroupRelationEntity relationEntity = attrAttrgroupRelationDao
+                    .selectOne(new QueryWrapper<AttrAttrgroupRelationEntity>().eq("attr_id", attrEntity.getAttrId()));
             if (null != relationEntity && null != relationEntity.getAttrGroupId()) {
                 AttrGroupEntity attrGroupEntity = attrGroupDao.selectById(relationEntity.getAttrGroupId());
                 attrRespVO.setGroupName(attrGroupEntity.getAttrGroupName());

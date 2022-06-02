@@ -51,16 +51,16 @@ public class MallExceptionControllerAdvice {
     }
 
 
-    /**
-     * 统一兜底处理所有异常
-     *
-     * @param throwable allException
-     * @return message
-     */
-    @ExceptionHandler(value = Throwable.class)
-    public R handleException(Throwable throwable) {
-        log.error("异常处理: {}", throwable.getMessage());
-
-        return R.error(BizCodeEnum.UNKNOWN_EXCEPTION.getCode(), BizCodeEnum.UNKNOWN_EXCEPTION.getMsg());
-    }
+//    /**
+//     * 统一兜底处理所有异常
+//     *
+//     * @param throwable allException
+//     * @return message
+//     */
+//    @ExceptionHandler(value = Throwable.class)
+//    public R handleException(Throwable throwable) {
+//        log.error("异常处理: {}", throwable.getMessage());
+//
+//        return R.error(BizCodeEnum.UNKNOWN_EXCEPTION.getCode(), BizCodeEnum.UNKNOWN_EXCEPTION.getMsg());
+//    }
 }
