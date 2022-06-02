@@ -30,6 +30,10 @@ public class CategoryBrandRelationServiceImpl extends ServiceImpl<CategoryBrandR
     @Resource
     private CategoryDao categoryDao;
 
+    // Service相比于Dao(自动生成)来说, 功能更加丰富
+//    @Resource
+//    private BrandService brandService;
+
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
         IPage<CategoryBrandRelationEntity> page = this.page(new Query<CategoryBrandRelationEntity>().getPage(params), new QueryWrapper<>());
