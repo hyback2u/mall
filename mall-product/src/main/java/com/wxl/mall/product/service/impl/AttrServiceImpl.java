@@ -286,7 +286,8 @@ public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements
         // fixme:notIn/in操作, 空集合会报错, 所以拼装前需要判断
         QueryWrapper<AttrEntity> queryWrapper = new QueryWrapper<AttrEntity>()
 //                .eq("catelog_id", catelogId).notIn("attr_ids", attrIds);
-                .eq("catelog_id", catelogId);
+                .eq("catelog_id", catelogId)
+                .eq("attr_type", ProductConstant.AttrEnum.ATTR_TYPE_BASE.getCode());
         if (attrIds.size() > 0) {
             queryWrapper.and((x) -> x.notIn("attr_ids", attrIds));
         }
