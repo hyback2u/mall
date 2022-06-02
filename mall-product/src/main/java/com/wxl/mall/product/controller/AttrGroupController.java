@@ -4,6 +4,7 @@ import com.wxl.common.utils.PageUtils;
 import com.wxl.common.utils.R;
 import com.wxl.mall.product.entity.AttrEntity;
 import com.wxl.mall.product.entity.AttrGroupEntity;
+import com.wxl.mall.product.service.AttrAttrgroupRelationService;
 import com.wxl.mall.product.service.AttrGroupService;
 import com.wxl.mall.product.service.AttrService;
 import com.wxl.mall.product.service.CategoryService;
@@ -37,6 +38,8 @@ public class AttrGroupController {
     @Resource
     private AttrService attrService;
 
+    @Resource
+    private AttrAttrgroupRelationService relationService;
 
     /**
      * 删除属性与分组的关联关系
@@ -48,6 +51,20 @@ public class AttrGroupController {
     @PostMapping(value = "/attr/relation/delete")
     public R deleteRelation(@RequestBody AttrGroupRelationVO[] vos) {
         attrService.deleteRelation(vos);
+
+        return R.ok();
+    }
+
+
+    /**
+     * 添加属性与分组关联关系
+     *
+     * @param vos 属性id,属性分组id eg:[{"attrId":1,"attrGroupId":12}]
+     * @return message
+     */
+    @PostMapping(value = "/attr/relation")
+    public R addRelation(@RequestBody List<AttrGroupRelationVO> vos) {
+        relationService.saveBatchRelation(vos);
 
         return R.ok();
     }
