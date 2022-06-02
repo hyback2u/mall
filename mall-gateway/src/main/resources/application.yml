@@ -11,16 +11,25 @@ spring:
     gateway:
       routes:
         # 测试网关基本功能
-#        - id: baidu_route
-#          uri: https://www.baidu.com
-#          predicates:
-#            - Query=url,baidu
-#
-#        - id: qq_route
-#          uri: https://www.qq.com
-#          predicates:
-#            - Query=url,qq
+        #        - id: baidu_route
+        #          uri: https://www.baidu.com
+        #          predicates:
+        #            - Query=url,baidu
+        #
+        #        - id: qq_route
+        #          uri: https://www.qq.com
+        #          predicates:
+        #            - Query=url,qq
 
+        # 会员服务路由
+        - id: member_route
+          uri: lb://mall-member
+          predicates:
+            - Path=/api/member/**
+          filters:
+            - RewritePath=/api/(?<segment>.*), /$\{segment}
+
+        # 三方服务路由
         - id: third_party_route
           uri: lb://mall-third-party
           predicates:
@@ -28,6 +37,7 @@ spring:
           filters:
             - RewritePath=/api/thirdparty/(?<segment>.*), /$\{segment}
 
+        # 商品服务路由
         - id: product_route
           uri: lb://mall-product
           predicates:
@@ -35,6 +45,7 @@ spring:
           filters:
             - RewritePath=/api/(?<segment>.*), /$\{segment}
 
+        # 认证服务路由
         - id: renren_route
           uri: lb://renren-fast
           predicates:
