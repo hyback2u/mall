@@ -294,7 +294,7 @@ public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements
         if (null != attrGroupEntities && attrGroupEntities.size() > 0) {
             List<Long> groupIds = attrGroupEntities.stream().map(AttrGroupEntity::getAttrGroupId).collect(Collectors.toList());
             List<AttrAttrgroupRelationEntity> relationEntities = attrAttrgroupRelationDao.selectList(new QueryWrapper<AttrAttrgroupRelationEntity>()
-                    .eq("attr_group_id", groupIds));
+                    .in("attr_group_id", groupIds));
             List<Long> attrIds = relationEntities.stream().map(AttrAttrgroupRelationEntity::getAttrId).collect(Collectors.toList());
             if (attrIds.size() > 0) {
                 queryWrapper.and((wrapper) -> wrapper.notIn("attr_id", attrIds));
