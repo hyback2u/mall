@@ -95,6 +95,12 @@ public class PurchaseServiceImpl extends ServiceImpl<PurchaseDao, PurchaseEntity
         }).collect(Collectors.toList());
 
         purchaseDetailService.updateBatchById(detailEntityList);
+
+        // 合并后, 更新采购单更新时间字段
+        PurchaseEntity purchaseEntity = new PurchaseEntity();
+        purchaseEntity.setId(purchaseId);
+        purchaseEntity.setUpdateTime(new Date());
+        this.updateById(purchaseEntity);
     }
 
 }
