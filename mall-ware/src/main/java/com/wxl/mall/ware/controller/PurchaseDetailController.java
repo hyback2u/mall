@@ -1,24 +1,18 @@
 package com.wxl.mall.ware.controller;
 
+import com.wxl.common.utils.PageUtils;
+import com.wxl.common.utils.R;
+import com.wxl.mall.ware.entity.PurchaseDetailEntity;
+import com.wxl.mall.ware.service.PurchaseDetailService;
+import org.springframework.web.bind.annotation.*;
+
+import javax.annotation.Resource;
 import java.util.Arrays;
 import java.util.Map;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
-import com.wxl.mall.ware.entity.PurchaseDetailEntity;
-import com.wxl.mall.ware.service.PurchaseDetailService;
-import com.wxl.common.utils.PageUtils;
-import com.wxl.common.utils.R;
-
-
 
 /**
- * 
+ *
  *
  * @author wangxl
  * @email 1919543837@qq.com
@@ -27,7 +21,7 @@ import com.wxl.common.utils.R;
 @RestController
 @RequestMapping("ware/purchasedetail")
 public class PurchaseDetailController {
-    @Autowired
+    @Resource
     private PurchaseDetailService purchaseDetailService;
 
     /**
