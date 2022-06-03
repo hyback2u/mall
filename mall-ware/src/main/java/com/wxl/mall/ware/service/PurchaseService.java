@@ -2,8 +2,9 @@ package com.wxl.mall.ware.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.wxl.common.utils.PageUtils;
-import com.wxl.mall.ware.controller.vo.MergeVO;
+import com.wxl.mall.ware.vo.MergeVO;
 import com.wxl.mall.ware.entity.PurchaseEntity;
+import com.wxl.mall.ware.vo.PurchaseDoneVO;
 
 import java.util.List;
 import java.util.Map;
@@ -41,5 +42,13 @@ public interface PurchaseService extends IService<PurchaseEntity> {
      * @param ids 采购单ids
      */
     void received(List<Long> ids);
+
+
+    /**
+     * 完成采购单
+     *
+     * @param purchaseDoneVO 采购单ids
+     */
+    void finishPurchase(PurchaseDoneVO purchaseDoneVO);
 }
 

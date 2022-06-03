@@ -3,7 +3,7 @@
 
 <mapper namespace="com.wxl.mall.ware.dao.WareSkuDao">
 
-	<!-- 可根据自己的需求，是否要使用 -->
+    <!-- 可根据自己的需求，是否要使用 -->
     <resultMap type="com.wxl.mall.ware.entity.WareSkuEntity" id="wareSkuMap">
         <result property="id" column="id"/>
         <result property="skuId" column="sku_id"/>
@@ -12,6 +12,14 @@
         <result property="skuName" column="sku_name"/>
         <result property="stockLocked" column="stock_locked"/>
     </resultMap>
+
+    <!--成功采购的采购单入库-->
+    <update id="addStock">
+        update `wms_ware_sku`
+        set stock=stock + #{skuNum}
+        where sku_id = #{skuId}
+          and ware_id = #{wareId}
+    </update>
 
 
 </mapper>

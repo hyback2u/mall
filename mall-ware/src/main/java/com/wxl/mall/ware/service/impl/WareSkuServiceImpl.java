@@ -5,17 +5,27 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.wxl.common.utils.PageUtils;
 import com.wxl.common.utils.Query;
+import com.wxl.common.utils.R;
 import com.wxl.mall.ware.dao.WareSkuDao;
 import com.wxl.mall.ware.entity.WareSkuEntity;
+import com.wxl.mall.ware.feign.ProductFeignService;
 import com.wxl.mall.ware.service.WareSkuService;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
+import java.util.List;
 import java.util.Map;
 
-
+@Slf4j
 @Service("wareSkuService")
 public class WareSkuServiceImpl extends ServiceImpl<WareSkuDao, WareSkuEntity> implements WareSkuService {
+
+    @Resource
+    private WareSkuDao wareSkuDao;
+    @Resource
+    private ProductFeignService productFeignService;
 
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
@@ -33,6 +43,43 @@ public class WareSkuServiceImpl extends ServiceImpl<WareSkuDao, WareSkuEntity> i
 
         IPage<WareSkuEntity> page = this.page(new Query<WareSkuEntity>().getPage(params), queryWrapper);
         return new PageUtils(page);
+    }
+
+
+    /**
+     * 成功采购的采购单入库
+     *
+     * @param skuId  skuId
+     * @param wareId wareId
+     * @param skuNum skuNum
+     */
+    @Override
+    public void addStock(Long skuId, Long wareId, Integer skuNum) {
+        // 判断有没有库存记录, 有的话更新, 没有的话新增
+        List<WareSkuEntity> entityList = wareSkuDao.selectList(new QueryWrapper<WareSkuEntity>().eq("sku_id", skuId).eq("ware_id", wareId));
+        if (null == entityList || entityList.size() == 0) {
+            WareSkuEntity wareSkuEntity = new WareSkuEntity();
+            wareSkuEntity.setSkuId(skuId);
+            wareSkuEntity.setWareId(wareId);
+            wareSkuEntity.setStockLocked(0);
+
+            // todo 远程调用失败处理策略, 目前先try-catch掉异常, 还有什么办法, 让异常出现以后不回滚？
+            try {
+                R info = productFeignService.info(skuId);
+                if (info.getCode() == 0) {
+                    Map<String, Object> data = (Map<String, Object>) info.get("skuInfo");
+                    wareSkuEntity.setSkuName((String) data.get("skuName"));
+                }
+            } catch (Exception e) {
+                log.info("e: {}", e.getMessage());
+            }
+
+            wareSkuEntity.setStock(skuNum);
+
+            wareSkuDao.insert(wareSkuEntity);
+        } else {
+            wareSkuDao.addStock(skuId, wareId, skuNum);
+        }
     }
 
 }

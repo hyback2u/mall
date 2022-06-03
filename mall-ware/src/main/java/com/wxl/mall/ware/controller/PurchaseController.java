@@ -2,9 +2,10 @@ package com.wxl.mall.ware.controller;
 
 import com.wxl.common.utils.PageUtils;
 import com.wxl.common.utils.R;
-import com.wxl.mall.ware.controller.vo.MergeVO;
 import com.wxl.mall.ware.entity.PurchaseEntity;
 import com.wxl.mall.ware.service.PurchaseService;
+import com.wxl.mall.ware.vo.MergeVO;
+import com.wxl.mall.ware.vo.PurchaseDoneVO;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -26,6 +27,20 @@ import java.util.Map;
 public class PurchaseController {
     @Resource
     private PurchaseService purchaseService;
+
+    /**
+     * 完成采购单
+     *
+     * @param purchaseDoneVO 采购单ids
+     * @return message
+     */
+    @PostMapping(value = "/done")
+    public R finishPurchase(@RequestBody PurchaseDoneVO purchaseDoneVO) {
+        purchaseService.finishPurchase(purchaseDoneVO);
+
+        return R.ok();
+    }
+
 
     /**
      * 领取采购单(暂时不考虑细节, 如员工只能领取自己的采购单)

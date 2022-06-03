@@ -6,17 +6,21 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.wxl.common.constant.WareConstant;
 import com.wxl.common.utils.PageUtils;
 import com.wxl.common.utils.Query;
-import com.wxl.mall.ware.controller.vo.MergeVO;
+import com.wxl.mall.ware.service.WareSkuService;
+import com.wxl.mall.ware.vo.MergeVO;
 import com.wxl.mall.ware.dao.PurchaseDao;
 import com.wxl.mall.ware.entity.PurchaseDetailEntity;
 import com.wxl.mall.ware.entity.PurchaseEntity;
 import com.wxl.mall.ware.service.PurchaseDetailService;
 import com.wxl.mall.ware.service.PurchaseService;
+import com.wxl.mall.ware.vo.PurchaseDoneVO;
+import com.wxl.mall.ware.vo.PurchaseItemDoneVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -28,6 +32,8 @@ public class PurchaseServiceImpl extends ServiceImpl<PurchaseDao, PurchaseEntity
 
     @Resource
     private PurchaseDetailService purchaseDetailService;
+    @Resource
+    private WareSkuService wareSkuService;
 
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
@@ -135,6 +141,49 @@ public class PurchaseServiceImpl extends ServiceImpl<PurchaseDao, PurchaseEntity
             }).collect(Collectors.toList());
             purchaseDetailService.updateBatchById(purchaseDetailUpdateList);
         });
+    }
+
+
+    /**
+     * 完成采购单
+     *
+     * @param purchaseDoneVO 采购单ids
+     */
+    @Transactional
+    @Override
+    public void finishPurchase(PurchaseDoneVO purchaseDoneVO) {
+        // 1、改变采购单状态, 后置操作, 需要根据采购项的状态
+
+        // 2、改变采购项状态
+        List<PurchaseDetailEntity> updateItems = new ArrayList<>();
+        boolean flag = true;
+        List<PurchaseItemDoneVO> items = purchaseDoneVO.getItems();
+        for (PurchaseItemDoneVO item : items) {
+            if (item.getStatus().equals(WareConstant.PurchaseDetailStatusEnum.PURCHASE_FAIL.getCode())) {
+                flag = false;
+            } else {
+                // 3、成功采购的采购单入库(库存表)
+                PurchaseDetailEntity purchaseDetail = purchaseDetailService.getById(item.getItemId());
+                wareSkuService.addStock(purchaseDetail.getSkuId(), purchaseDetail.getWareId(), purchaseDetail.getSkuNum());
+            }
+
+            PurchaseDetailEntity purchaseDetailEntity = new PurchaseDetailEntity();
+            purchaseDetailEntity.setStatus(item.getStatus());
+            purchaseDetailEntity.setId(item.getItemId());
+
+            updateItems.add(purchaseDetailEntity);
+        }
+        // 批量更新
+        purchaseDetailService.updateBatchById(updateItems);
+
+        // 改变采购单状态
+        PurchaseEntity purchaseEntity = new PurchaseEntity();
+        purchaseEntity.setId(purchaseDoneVO.getId());
+        purchaseEntity.setStatus(flag ? WareConstant.PurchaseStatusEnum.FINISH.getCode()
+                : WareConstant.PurchaseStatusEnum.HAS_ERROR.getCode());
+        purchaseEntity.setUpdateTime(new Date());
+
+        this.updateById(purchaseEntity);
     }
 
 }
