@@ -76,6 +76,9 @@ public class PurchaseServiceImpl extends ServiceImpl<PurchaseDao, PurchaseEntity
             purchaseId = purchaseEntity.getId();
 
         }
+
+        // todo 采购单状态校验(必须是0或者1)才可以合并
+
         // 合并采购单(就是修改实体状态)
         Long finalPurchaseId = purchaseId;
         List<PurchaseDetailEntity> detailEntityList = items.stream().map(item -> {
