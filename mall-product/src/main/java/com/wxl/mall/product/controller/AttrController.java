@@ -3,7 +3,9 @@ package com.wxl.mall.product.controller;
 import com.alibaba.fastjson.JSON;
 import com.wxl.common.utils.PageUtils;
 import com.wxl.common.utils.R;
+import com.wxl.mall.product.entity.ProductAttrValueEntity;
 import com.wxl.mall.product.service.AttrService;
+import com.wxl.mall.product.service.ProductAttrValueService;
 import com.wxl.mall.product.vo.AttrResponseVO;
 import com.wxl.mall.product.vo.AttrVO;
 import lombok.extern.slf4j.Slf4j;
@@ -11,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 
@@ -27,7 +30,37 @@ import java.util.Map;
 public class AttrController {
     @Resource
     private AttrService attrService;
+    @Resource
+    private ProductAttrValueService productAttrValueService;
 
+
+    /**
+     * 更新spu的基本属性
+     * TODO SpringMVC这里是怎么封装的... RequestBody以及入参顺序啥的...
+     *
+     * @param spuId spuId
+     * @return ok
+     */
+    @PostMapping("/update/{spuId}")
+    public R updateSpuAttr(@PathVariable("spuId") Long spuId,
+                           @RequestBody List<ProductAttrValueEntity> entities) {
+        productAttrValueService.updateSpuAttr(spuId, entities);
+
+        return R.ok();
+    }
+
+    /**
+     * 根据spuId进行回显属性, 获取spu规格参数
+     *
+     * @param spuId spuId
+     * @return data
+     */
+    @GetMapping("/base/listforspu/{spuId}")
+    private R baseAttrListForSpu(@PathVariable("spuId") Long spuId) {
+        List<ProductAttrValueEntity> entities = productAttrValueService.baseAttrListForSpu(spuId);
+
+        return R.ok().put("data", entities);
+    }
 
     /**
      * 获取分类下的规格参数功能[分页查询] xxxPage
