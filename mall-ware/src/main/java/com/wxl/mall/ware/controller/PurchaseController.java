@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 
@@ -25,6 +26,20 @@ import java.util.Map;
 public class PurchaseController {
     @Resource
     private PurchaseService purchaseService;
+
+    /**
+     * 领取采购单(暂时不考虑细节, 如员工只能领取自己的采购单)
+     *
+     * @param ids 采购单ids
+     * @return message
+     */
+    @PostMapping(value = "/received")
+    public R merge(@RequestBody List<Long> ids) {
+        purchaseService.received(ids);
+
+        return R.ok();
+    }
+
 
     /**
      * 合并采购需求

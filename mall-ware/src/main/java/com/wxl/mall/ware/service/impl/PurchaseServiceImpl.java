@@ -12,6 +12,7 @@ import com.wxl.mall.ware.entity.PurchaseDetailEntity;
 import com.wxl.mall.ware.entity.PurchaseEntity;
 import com.wxl.mall.ware.service.PurchaseDetailService;
 import com.wxl.mall.ware.service.PurchaseService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,7 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-
+@Slf4j
 @Service("purchaseService")
 public class PurchaseServiceImpl extends ServiceImpl<PurchaseDao, PurchaseEntity> implements PurchaseService {
 
@@ -30,10 +31,7 @@ public class PurchaseServiceImpl extends ServiceImpl<PurchaseDao, PurchaseEntity
 
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
-        IPage<PurchaseEntity> page = this.page(
-                new Query<PurchaseEntity>().getPage(params),
-                new QueryWrapper<>()
-        );
+        IPage<PurchaseEntity> page = this.page(new Query<PurchaseEntity>().getPage(params), new QueryWrapper<>());
 
         return new PageUtils(page);
     }
@@ -47,12 +45,9 @@ public class PurchaseServiceImpl extends ServiceImpl<PurchaseDao, PurchaseEntity
      */
     @Override
     public PageUtils queryPageUnreceivePurchase(Map<String, Object> params) {
-        IPage<PurchaseEntity> page = this.page(
-                new Query<PurchaseEntity>().getPage(params),
+        IPage<PurchaseEntity> page = this.page(new Query<PurchaseEntity>().getPage(params),
                 // todo 状态优化为enum
-                new QueryWrapper<PurchaseEntity>().eq("status", 0)
-                        .or().eq("status", 1)
-        );
+                new QueryWrapper<PurchaseEntity>().eq("status", 0).or().eq("status", 1));
 
         return new PageUtils(page);
     }
@@ -101,6 +96,42 @@ public class PurchaseServiceImpl extends ServiceImpl<PurchaseDao, PurchaseEntity
         purchaseEntity.setId(purchaseId);
         purchaseEntity.setUpdateTime(new Date());
         this.updateById(purchaseEntity);
+    }
+
+    /**
+     * 领取采购单
+     *
+     * @param ids 采购单ids
+     */
+    @Transactional
+    @Override
+    public void received(List<Long> ids) {
+        // 1、确认当前采购单是新建或者已分配状态
+        List<PurchaseEntity> purchaseEntities = ids.stream().map(this::getById)
+                // todo 这里应该是校验的, 现在先进行过滤处理吧
+                .filter(purchaseEntity -> purchaseEntity.getStatus().equals(WareConstant.PurchaseStatusEnum.CREATED.getCode()) || purchaseEntity.getStatus().equals(WareConstant.PurchaseStatusEnum.ASSIGNED.getCode()))
+                // 要改成的状态
+                .peek(item -> {
+                    item.setStatus(WareConstant.PurchaseStatusEnum.RECEIVE.getCode());
+                    item.setUpdateTime(new Date());
+                }).collect(Collectors.toList());
+
+        // 2、改变采购单状态
+        this.updateBatchById(purchaseEntities);
+
+        // 3、改变采购单采购项的状态
+        purchaseEntities.forEach(item -> {
+            // 按照采购单的id找到下面所有的采购项
+            List<PurchaseDetailEntity> purchaseDetailEntityList = purchaseDetailService.listDetailByPurchaseId(item.getId());
+            List<PurchaseDetailEntity> purchaseDetailUpdateList = purchaseDetailEntityList.stream().map(entity -> {
+                PurchaseDetailEntity detailUpdate = new PurchaseDetailEntity();
+                detailUpdate.setId(entity.getId());
+                // 采购中...
+                detailUpdate.setStatus(WareConstant.PurchaseDetailStatusEnum.PURCHASING.getCode());
+                return detailUpdate;
+            }).collect(Collectors.toList());
+            purchaseDetailService.updateBatchById(purchaseDetailUpdateList);
+        });
     }
 
 }

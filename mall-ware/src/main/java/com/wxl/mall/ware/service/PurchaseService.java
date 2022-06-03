@@ -5,6 +5,7 @@ import com.wxl.common.utils.PageUtils;
 import com.wxl.mall.ware.controller.vo.MergeVO;
 import com.wxl.mall.ware.entity.PurchaseEntity;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -33,5 +34,12 @@ public interface PurchaseService extends IService<PurchaseEntity> {
      * @param mergeVO 整单id&合并项集合
      */
     void mergePurchase(MergeVO mergeVO);
+
+    /**
+     * 领取采购单
+     *
+     * @param ids 采购单ids
+     */
+    void received(List<Long> ids);
 }
 
