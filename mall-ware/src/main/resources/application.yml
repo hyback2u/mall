@@ -19,3 +19,8 @@ mybatis-plus:
   global-config: # 配置数据库实体类主键自增, 否则需要在每个实体类上操作
     db-config:
       id-type: auto
+
+# 修改wms服务日志等级, 打印sql
+logging:
+  level:
+    com.wxl: debug
