@@ -2,12 +2,14 @@ package com.wxl.mall.ware.controller;
 
 import com.wxl.common.utils.PageUtils;
 import com.wxl.common.utils.R;
+import com.wxl.mall.ware.controller.vo.MergeVO;
 import com.wxl.mall.ware.entity.PurchaseEntity;
 import com.wxl.mall.ware.service.PurchaseService;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.Map;
 
 
@@ -24,6 +26,18 @@ public class PurchaseController {
     @Resource
     private PurchaseService purchaseService;
 
+    /**
+     * 合并采购需求
+     *
+     * @param mergeVO 整单id&合并项集合
+     * @return message
+     */
+    @PostMapping(value = "/merge")
+    public R merge(@RequestBody MergeVO mergeVO) {
+        purchaseService.mergePurchase(mergeVO);
+
+        return R.ok();
+    }
 
     /**
      * 查询未领取的采购单
@@ -66,6 +80,10 @@ public class PurchaseController {
      */
     @RequestMapping("/save")
     public R save(@RequestBody PurchaseEntity purchase) {
+        // 初次保存, 设置默认值
+        purchase.setCreateTime(new Date());
+        purchase.setUpdateTime(new Date());
+
         purchaseService.save(purchase);
 
         return R.ok();

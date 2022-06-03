@@ -2,6 +2,7 @@ package com.wxl.mall.ware.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.wxl.common.utils.PageUtils;
+import com.wxl.mall.ware.controller.vo.MergeVO;
 import com.wxl.mall.ware.entity.PurchaseEntity;
 
 import java.util.Map;
@@ -24,5 +25,13 @@ public interface PurchaseService extends IService<PurchaseEntity> {
      * @return pageData
      */
     PageUtils queryPageUnreceivePurchase(Map<String, Object> params);
+
+
+    /**
+     * 合并采购需求
+     *
+     * @param mergeVO 整单id&合并项集合
+     */
+    void mergePurchase(MergeVO mergeVO);
 }
 
