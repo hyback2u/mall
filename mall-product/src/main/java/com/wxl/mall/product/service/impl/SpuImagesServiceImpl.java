@@ -10,7 +10,9 @@ import com.wxl.mall.product.entity.SpuImagesEntity;
 import com.wxl.mall.product.service.SpuImagesService;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 
 @Service("spuImagesService")
@@ -18,12 +20,24 @@ public class SpuImagesServiceImpl extends ServiceImpl<SpuImagesDao, SpuImagesEnt
 
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
-        IPage<SpuImagesEntity> page = this.page(
-                new Query<SpuImagesEntity>().getPage(params),
-                new QueryWrapper<SpuImagesEntity>()
-        );
+        IPage<SpuImagesEntity> page = this.page(new Query<SpuImagesEntity>().getPage(params), new QueryWrapper<>());
 
         return new PageUtils(page);
+    }
+
+    @Override
+    public void saveImages(Long spuId, List<String> images) {
+        if (null == images || images.size() == 0) {
+            return;
+        }
+        List<SpuImagesEntity> imagesEntityList = images.stream().map(img -> {
+            SpuImagesEntity imageEntity = new SpuImagesEntity();
+            imageEntity.setSpuId(spuId);
+            imageEntity.setImgUrl(img);
+            return imageEntity;
+        }).collect(Collectors.toList());
+
+        this.saveBatch(imagesEntityList);
     }
 
 }

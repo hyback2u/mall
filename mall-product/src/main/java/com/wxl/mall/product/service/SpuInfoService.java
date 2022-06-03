@@ -3,6 +3,7 @@ package com.wxl.mall.product.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.wxl.common.utils.PageUtils;
 import com.wxl.mall.product.entity.SpuInfoEntity;
+import com.wxl.mall.product.vo.SPUSaveVO;
 
 import java.util.Map;
 
@@ -16,5 +17,21 @@ import java.util.Map;
 public interface SpuInfoService extends IService<SpuInfoEntity> {
 
     PageUtils queryPage(Map<String, Object> params);
+
+    /**
+     * 保存页面发布商品SPU信息, 一个大的业务逻辑保存功能
+     *
+     * @param spuSaveVO formData
+     */
+    void saveSPUInfo(SPUSaveVO spuSaveVO);
+
+
+    /**
+     * 保存SPU的基本信息
+     *
+     * @param spuInfoEntity spuInfoEntity
+     */
+    void saveBaseSPUInfo(SpuInfoEntity spuInfoEntity);
+
 }
 

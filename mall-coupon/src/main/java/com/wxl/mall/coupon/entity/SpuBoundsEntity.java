@@ -2,15 +2,14 @@ package com.wxl.mall.coupon.entity;
 
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-
-import java.math.BigDecimal;
-import java.io.Serializable;
-import java.util.Date;
 import lombok.Data;
+
+import java.io.Serializable;
+import java.math.BigDecimal;
 
 /**
  * 商品spu积分设置
- * 
+ *
  * @author wangxl
  * @email 1919543837@qq.com
  * @date 2022-04-30 15:07:04
@@ -26,7 +25,7 @@ public class SpuBoundsEntity implements Serializable {
 	@TableId
 	private Long id;
 	/**
-	 * 
+	 *
 	 */
 	private Long spuId;
 	/**

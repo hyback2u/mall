@@ -1,6 +1,7 @@
 package com.wxl.mall.coupon.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.wxl.common.to.SKUReductionTO;
 import com.wxl.common.utils.PageUtils;
 import com.wxl.mall.coupon.entity.SkuFullReductionEntity;
 
@@ -16,5 +17,12 @@ import java.util.Map;
 public interface SkuFullReductionService extends IService<SkuFullReductionEntity> {
 
     PageUtils queryPage(Map<String, Object> params);
+
+    /**
+     * 保存sku优惠、满减等信息
+     *
+     * @param skuReductionTO skuReductionTO
+     */
+    void saveSkuReduction(SKUReductionTO skuReductionTO);
 }
 

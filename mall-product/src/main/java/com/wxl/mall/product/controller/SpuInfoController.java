@@ -4,12 +4,12 @@ import com.wxl.common.utils.PageUtils;
 import com.wxl.common.utils.R;
 import com.wxl.mall.product.entity.SpuInfoEntity;
 import com.wxl.mall.product.service.SpuInfoService;
+import com.wxl.mall.product.vo.SPUSaveVO;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import java.util.Arrays;
 import java.util.Map;
-
 
 
 /**
@@ -29,7 +29,7 @@ public class SpuInfoController {
      * 列表
      */
     @RequestMapping("/list")
-    public R list(@RequestParam Map<String, Object> params){
+    public R list(@RequestParam Map<String, Object> params) {
         PageUtils page = spuInfoService.queryPage(params);
 
         return R.ok().put("page", page);
@@ -40,28 +40,43 @@ public class SpuInfoController {
      * 信息
      */
     @RequestMapping("/info/{id}")
-    public R info(@PathVariable("id") Long id){
-		SpuInfoEntity spuInfo = spuInfoService.getById(id);
+    public R info(@PathVariable("id") Long id) {
+        SpuInfoEntity spuInfo = spuInfoService.getById(id);
 
         return R.ok().put("spuInfo", spuInfo);
     }
 
+
     /**
-     * 保存
+     * 保存页面发布商品SPU信息
+     * 这个动作报错牵扯很多动作, 涉及很多张表, 不仅保存商品表里边的sku, spu
+     * 包括图片信息, 属性值关联... 以及设计了商品的积分, 还要跨系统给商品的营销系统里面保存sku积分满减等
      */
     @RequestMapping("/save")
-    public R save(@RequestBody SpuInfoEntity spuInfo){
-		spuInfoService.save(spuInfo);
+    public R save(@RequestBody SPUSaveVO spuSaveVO) {
+//        spuInfoService.save(spuSaveVO);
+        spuInfoService.saveSPUInfo(spuSaveVO);
 
         return R.ok();
     }
+
+
+//    /**
+//     * 保存
+//     */
+//    @RequestMapping("/save")
+//    public R save(@RequestBody SpuInfoEntity spuInfo){
+//		spuInfoService.save(spuInfo);
+//
+//        return R.ok();
+//    }
 
     /**
      * 修改
      */
     @RequestMapping("/update")
-    public R update(@RequestBody SpuInfoEntity spuInfo){
-		spuInfoService.updateById(spuInfo);
+    public R update(@RequestBody SpuInfoEntity spuInfo) {
+        spuInfoService.updateById(spuInfo);
 
         return R.ok();
     }
@@ -70,8 +85,8 @@ public class SpuInfoController {
      * 删除
      */
     @RequestMapping("/delete")
-    public R delete(@RequestBody Long[] ids){
-		spuInfoService.removeByIds(Arrays.asList(ids));
+    public R delete(@RequestBody Long[] ids) {
+        spuInfoService.removeByIds(Arrays.asList(ids));
 
         return R.ok();
     }
