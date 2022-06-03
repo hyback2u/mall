@@ -49,10 +49,7 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
 
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
-        IPage<SpuInfoEntity> page = this.page(
-                new Query<SpuInfoEntity>().getPage(params),
-                new QueryWrapper<>()
-        );
+        IPage<SpuInfoEntity> page = this.page(new Query<SpuInfoEntity>().getPage(params), new QueryWrapper<>());
 
         return new PageUtils(page);
     }
@@ -184,8 +181,7 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
             BeanUtils.copyProperties(sku, skuReductionTO);
             skuReductionTO.setSkuId(skuInfoEntity.getSkuId());
             // BigDecimal比较大小
-            if (skuReductionTO.getFullCount() > 0
-                    || skuReductionTO.getFullPrice().compareTo(BigDecimal.ZERO) > 0) {
+            if (skuReductionTO.getFullCount() > 0 || skuReductionTO.getFullPrice().compareTo(BigDecimal.ZERO) > 0) {
                 R r = couponFeignService.saveSKUReduction(skuReductionTO);
                 if (r.getCode() != 0) {
                     log.error("远程保存SKU优惠信息失败");
@@ -198,6 +194,52 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
     @Override
     public void saveBaseSPUInfo(SpuInfoEntity spuInfoEntity) {
         this.baseMapper.insert(spuInfoEntity);
+    }
+
+    /**
+     * spu检索
+     *
+     * @param params params
+     * @return pageData
+     */
+    @Override
+    public PageUtils queryPageByCondition(Map<String, Object> params) {
+        QueryWrapper<SpuInfoEntity> queryWrapper = new QueryWrapper<>();
+
+        String key = (String) params.get("key");
+        if (StringUtils.isNotBlank(key)) {
+            queryWrapper.and((wrapper) -> wrapper.eq("id", key).or().like("spu_name", key));
+        }
+
+        String status = (String) params.get("status");
+        if (StringUtils.isNotBlank(status)) {
+            queryWrapper.eq("publish_status", status);
+        }
+
+
+        // TODO 为啥这里的StringUtils.isNotBlank会报NPE
+        String brandId = (String) params.get("brandId");
+        if (StringUtils.isNotEmpty(brandId) && !"0".equalsIgnoreCase(brandId)) {
+            queryWrapper.eq("brand_id", brandId);
+        }
+//        Object brandId = params.get("brandId");
+//        if (null != brandId && (int) brandId != 0) {
+//            queryWrapper.eq("brand_id", brandId);
+//        }
+//
+
+        String catelogId = (String) params.get("catelogId");
+        if (StringUtils.isNotEmpty(catelogId) && !"0".equalsIgnoreCase(catelogId)) {
+            queryWrapper.eq("catalog_id", catelogId);
+        }
+//        Object catelogId = params.get("catelogId");
+//        if (null != catelogId && (int) catelogId != 0) {
+//            queryWrapper.eq("catalog_id", catelogId);
+//        }
+
+
+        IPage<SpuInfoEntity> page = this.page(new Query<SpuInfoEntity>().getPage(params), queryWrapper);
+        return new PageUtils(page);
     }
 
 }

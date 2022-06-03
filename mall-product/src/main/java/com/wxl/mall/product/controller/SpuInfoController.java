@@ -25,12 +25,16 @@ public class SpuInfoController {
     @Resource
     private SpuInfoService spuInfoService;
 
+
     /**
-     * 列表
+     * spu检索
+     *
+     * @param params params
+     * @return pageData
      */
     @RequestMapping("/list")
     public R list(@RequestParam Map<String, Object> params) {
-        PageUtils page = spuInfoService.queryPage(params);
+        PageUtils page = spuInfoService.queryPageByCondition(params);
 
         return R.ok().put("page", page);
     }
