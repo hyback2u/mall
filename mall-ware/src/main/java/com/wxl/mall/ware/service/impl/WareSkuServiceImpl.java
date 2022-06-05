@@ -95,9 +95,11 @@ public class WareSkuServiceImpl extends ServiceImpl<WareSkuDao, WareSkuEntity> i
     public List<SkuHasStockVO> getSkusHasStock(List<Long> skuIds) {
         return skuIds.stream().map(skuId -> {
             SkuHasStockVO vo = new SkuHasStockVO();
-            long count = this.baseMapper.getSkuStock(skuId);
+            // fixme:这里不能是包装类型？嗯, 为long返回NULL就报错ibatis报错
+            Long count = this.baseMapper.getSkuStock(skuId);
             vo.setSku_id(skuId);
-            vo.setHasStock(count > 0);
+            // 那么这里就可能为空
+            vo.setHasStock(count != null && count > 0);
             return vo;
         }).collect(Collectors.toList());
     }
