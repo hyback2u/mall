@@ -8,6 +8,28 @@ package com.wxl.common.constant;
  */
 public class ProductConstant {
 
+    public enum StatusEnum {
+        NEW_SPU(0, "新建"),
+        SPU_UP(1, "上架"),
+        SPU_DOWN(2, "下架");
+
+        private final Integer code;
+        private final String msg;
+
+        StatusEnum(Integer code, String msg) {
+            this.code = code;
+            this.msg = msg;
+        }
+
+        public Integer getCode() {
+            return code;
+        }
+
+        public String getMsg() {
+            return msg;
+        }
+    }
+
     /**
      * 这里销售属性, 和基本属性是共用一张表的, 只是通过一个字段值区分, 这里定义枚举表示
      */

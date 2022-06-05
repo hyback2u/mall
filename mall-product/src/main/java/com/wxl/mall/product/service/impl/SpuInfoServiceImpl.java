@@ -3,6 +3,7 @@ package com.wxl.mall.product.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.wxl.common.constant.ProductConstant;
 import com.wxl.common.to.SKUReductionTO;
 import com.wxl.common.to.SPUBoundsTO;
 import com.wxl.common.to.SkuHasStockVO;
@@ -13,6 +14,7 @@ import com.wxl.common.utils.R;
 import com.wxl.mall.product.dao.SpuInfoDao;
 import com.wxl.mall.product.entity.*;
 import com.wxl.mall.product.feign.CouponFeignService;
+import com.wxl.mall.product.feign.SearchFeignService;
 import com.wxl.mall.product.feign.WareFeignService;
 import com.wxl.mall.product.service.*;
 import com.wxl.mall.product.vo.*;
@@ -52,6 +54,8 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
     private CategoryService categoryService;
     @Resource
     private WareFeignService wareFeignService;
+    @Resource
+    private SearchFeignService searchFeignService;
 
 
     @Override
@@ -326,7 +330,14 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
         }).collect(Collectors.toList());
 
         // 3、发送给ElasticSearch进行保存 交给mall-search处理
-
+        R r = searchFeignService.productStatusUp(upProducts);
+        if(r.getCode() == 0) {
+            // 成功, 修改spu状态为上架
+            this.baseMapper.updateSpuStatus(spuId, ProductConstant.StatusEnum.SPU_UP.getCode());
+        }else {
+            log.error("pms->search 上架远程接口调用失败");
+            // todo 1、重复调用的问题？即:接口幂等性... 2、重试机制？
+        }
 
     }
 }

@@ -3,7 +3,7 @@
 
 <mapper namespace="com.wxl.mall.product.dao.SpuInfoDao">
 
-	<!-- 可根据自己的需求，是否要使用 -->
+    <!-- 可根据自己的需求，是否要使用 -->
     <resultMap type="com.wxl.mall.product.entity.SpuInfoEntity" id="spuInfoMap">
         <result property="id" column="id"/>
         <result property="spuName" column="spu_name"/>
@@ -15,6 +15,13 @@
         <result property="createTime" column="create_time"/>
         <result property="updateTime" column="update_time"/>
     </resultMap>
+
+    <!--上架接口远程调用成功后, 修改SPU状态-->
+    <update id="updateSpuStatus">
+        update `pms_spu_info`
+        set `publish_status`=#{code}, `update_time`=now()
+        where `id` = #{spuId}
+    </update>
 
 
 </mapper>
