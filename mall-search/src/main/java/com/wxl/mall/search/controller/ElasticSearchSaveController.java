@@ -43,7 +43,7 @@ public class ElasticSearchSaveController {
             return R.error(BizCodeEnum.PRODUCT_UP_EXCEPTION.getCode(), BizCodeEnum.PRODUCT_UP_EXCEPTION.getMsg());
         }
 
-        if (statusUp) {
+        if (!statusUp) {
             return R.ok();
         } else {
             return R.error(BizCodeEnum.PRODUCT_UP_EXCEPTION.getCode(), BizCodeEnum.PRODUCT_UP_EXCEPTION.getMsg());
