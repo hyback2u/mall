@@ -3,6 +3,7 @@ package com.wxl.mall.ware.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.wxl.common.to.SkuHasStockVO;
 import com.wxl.common.utils.PageUtils;
 import com.wxl.common.utils.Query;
 import com.wxl.common.utils.R;
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service("wareSkuService")
@@ -80,6 +82,24 @@ public class WareSkuServiceImpl extends ServiceImpl<WareSkuDao, WareSkuEntity> i
         } else {
             wareSkuDao.addStock(skuId, wareId, skuNum);
         }
+    }
+
+
+    /**
+     * 批量查询sku是否有库存(请求体里面放数据->POST)
+     *
+     * @param skuIds skuIds
+     * @return data&List_SkuHasStockVO
+     */
+    @Override
+    public List<SkuHasStockVO> getSkusHasStock(List<Long> skuIds) {
+        return skuIds.stream().map(skuId -> {
+            SkuHasStockVO vo = new SkuHasStockVO();
+            long count = this.baseMapper.getSkuStock(skuId);
+            vo.setSku_id(skuId);
+            vo.setHasStock(count > 0);
+            return vo;
+        }).collect(Collectors.toList());
     }
 
 }

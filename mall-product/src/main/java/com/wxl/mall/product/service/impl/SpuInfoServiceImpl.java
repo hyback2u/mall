@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.wxl.common.to.SKUReductionTO;
 import com.wxl.common.to.SPUBoundsTO;
+import com.wxl.common.to.SkuHasStockVO;
 import com.wxl.common.to.es.SkuESModel;
 import com.wxl.common.utils.PageUtils;
 import com.wxl.common.utils.Query;
@@ -12,6 +13,7 @@ import com.wxl.common.utils.R;
 import com.wxl.mall.product.dao.SpuInfoDao;
 import com.wxl.mall.product.entity.*;
 import com.wxl.mall.product.feign.CouponFeignService;
+import com.wxl.mall.product.feign.WareFeignService;
 import com.wxl.mall.product.service.*;
 import com.wxl.mall.product.vo.*;
 import org.apache.commons.lang.StringUtils;
@@ -48,6 +50,8 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
     private BrandService brandService;
     @Resource
     private CategoryService categoryService;
+    @Resource
+    private WareFeignService wareFeignService;
 
 
     @Override
@@ -272,16 +276,39 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
                 })
                 .collect(Collectors.toList());
 
+        // 期望远程服务有一个接口可以统一查询sku是否有库存
+        List<Long> skuIds = skuList.stream().map(SkuInfoEntity::getSkuId).collect(Collectors.toList());
+        Map<Long, Boolean> stockMap = null;
+        try {
+            List<SkuHasStockVO> stockVOList = wareFeignService.getSkusHasStock(skuIds);
+//        result.get("data");
+            // 转为 map  <skuId, hasStock>
+            stockMap = stockVOList.stream().collect(Collectors.toMap(
+                    SkuHasStockVO::getSku_id, SkuHasStockVO::getHasStock
+            ));
+        } catch (Exception e) {
+            log.error("*********WareFeignService Exception: {}", e);
+        }
+
+
         // 2、封装每个sku的信息
+        Map<Long, Boolean> finalStockMap = stockMap;
         List<SkuESModel> upProducts = skuList.stream().map(sku -> {
             SkuESModel esModel = new SkuESModel();
             BeanUtils.copyProperties(sku, esModel);
 
             esModel.setSkuPrice(sku.getPrice());
             esModel.setSkuImg(sku.getSkuDefaultImg());
-            // 判断是否有库存 todo 1、发送远程调用, 库存系统查询是否有库存
+            // 判断是否有库存 1、发送远程调用, 库存系统查询是否有库存
             // fixme:这里循环调用远程库存查询, 是一个很慢、很耗时的过程, 这里优化为期望远程服务有一个接口可以统一查询sku是否有库存
-            esModel.setHasStock(true);
+
+            // 这里, 分布式调用失败的处理方法默认有库存
+            if(null == finalStockMap) {
+                esModel.setHasStock(true);
+            } else {
+                esModel.setHasStock(finalStockMap.get(sku.getSkuId()));
+            }
+
             // 2、热度评分(例如, 这里先设置刚上架的是0, ps:这块应该是后台可控的非常复杂的一个操作)
             esModel.setHotScore(0L);
 

@@ -1,5 +1,6 @@
 package com.wxl.mall.ware.controller;
 
+import com.wxl.common.to.SkuHasStockVO;
 import com.wxl.common.utils.PageUtils;
 import com.wxl.common.utils.R;
 import com.wxl.mall.ware.entity.WareSkuEntity;
@@ -8,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 
@@ -23,6 +25,20 @@ import java.util.Map;
 public class WareSkuController {
     @Resource
     private WareSkuService wareSkuService;
+
+
+    /**
+     * 批量查询sku是否有库存(请求体里面放数据->POST)
+     *
+     * @param skuIds skuIds
+     * @return data&List_SkuHasStockVO
+     */
+    @PostMapping("/hasStock")
+    public List<SkuHasStockVO> getSkusHasStock(@RequestBody List<Long> skuIds) {
+        // sku_id, hasStock
+        return wareSkuService.getSkusHasStock(skuIds);
+    }
+
 
     /**
      * 列表
