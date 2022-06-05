@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.wxl.common.to.SKUReductionTO;
 import com.wxl.common.to.SPUBoundsTO;
+import com.wxl.common.to.es.SkuESModel;
 import com.wxl.common.utils.PageUtils;
 import com.wxl.common.utils.Query;
 import com.wxl.common.utils.R;
@@ -20,9 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -45,6 +44,10 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
     private SkuSaleAttrValueService skuSaleAttrValueService;
     @Resource
     private CouponFeignService couponFeignService;
+    @Resource
+    private BrandService brandService;
+    @Resource
+    private CategoryService categoryService;
 
 
     @Override
@@ -242,4 +245,61 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
         return new PageUtils(page);
     }
 
+
+    /**
+     * 商品上架
+     *
+     * @param spuId spuId
+     */
+    @Override
+    public void up(Long spuId) {
+        // 1、查出当前spuId对应的所有sku信息, 包含品牌名等
+        List<SkuInfoEntity> skuList = skuInfoService.getSkusBySpuId(spuId);
+
+        // 可以被检索规格属性
+        List<ProductAttrValueEntity> baseAttrs = productAttrValueService.baseAttrListForSpu(spuId);
+        List<Long> attrIds = baseAttrs.stream().map(ProductAttrValueEntity::getAttrId).collect(Collectors.toList());
+
+        List<Long> searchAttrIds = attrService.selectSearchAttrIds(attrIds);
+        Set<Long> idSet = new HashSet<>(searchAttrIds);
+
+        List<SkuESModel.Attrs> attrs = baseAttrs.stream()
+                .filter(item -> idSet.contains(item.getAttrId()))
+                .map(item -> {
+                    SkuESModel.Attrs attr = new SkuESModel.Attrs();
+                    BeanUtils.copyProperties(item, attr);
+                    return attr;
+                })
+                .collect(Collectors.toList());
+
+        // 2、封装每个sku的信息
+        List<SkuESModel> upProducts = skuList.stream().map(sku -> {
+            SkuESModel esModel = new SkuESModel();
+            BeanUtils.copyProperties(sku, esModel);
+
+            esModel.setSkuPrice(sku.getPrice());
+            esModel.setSkuImg(sku.getSkuDefaultImg());
+            // 判断是否有库存 todo 1、发送远程调用, 库存系统查询是否有库存
+            // fixme:这里循环调用远程库存查询, 是一个很慢、很耗时的过程, 这里优化为期望远程服务有一个接口可以统一查询sku是否有库存
+            esModel.setHasStock(true);
+            // 2、热度评分(例如, 这里先设置刚上架的是0, ps:这块应该是后台可控的非常复杂的一个操作)
+            esModel.setHotScore(0L);
+
+            BrandEntity brandEntity = brandService.getById(esModel.getBrandId());
+            esModel.setBrandName(brandEntity.getName());
+            esModel.setBrandImg(brandEntity.getLogo());
+
+            CategoryEntity categoryEntity = categoryService.getById(esModel.getCatalogId());
+            esModel.setCatalogName(categoryEntity.getName());
+
+            // 3、设置检索属性, 查询当前sku所有的可以被检索规格属性 --> 按照spu来的, 放在外边
+            esModel.setAttrs(attrs);
+
+            return esModel;
+        }).collect(Collectors.toList());
+
+        // 3、发送给ElasticSearch进行保存 交给mall-search处理
+
+
+    }
 }
