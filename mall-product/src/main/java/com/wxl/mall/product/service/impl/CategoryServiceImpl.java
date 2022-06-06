@@ -9,6 +9,7 @@ import com.wxl.mall.product.dao.CategoryDao;
 import com.wxl.mall.product.entity.CategoryEntity;
 import com.wxl.mall.product.service.CategoryBrandRelationService;
 import com.wxl.mall.product.service.CategoryService;
+import com.wxl.mall.product.vo.Catelog2VO;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Service;
@@ -116,6 +117,65 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
         categoryBrandRelationService.updateCategory(category.getCatId(), category.getName());
 
         // todo 其它要更新的关联表...
+    }
+
+
+    /**
+     * 一级分类数据
+     *
+     * @return data
+     */
+    @Override
+    public List<CategoryEntity> getLevel1Categories() {
+        return this.baseMapper.selectList(new QueryWrapper<CategoryEntity>()
+                .eq("parent_cid", 0));
+    }
+
+
+    /**
+     * [前端]查出所有分类, 按照形式组织后返回
+     *
+     * @return data
+     */
+    @Override
+    public Map<String, List<Catelog2VO>> getCatalogJson() {
+        // 1、查出所有一级分类
+        List<CategoryEntity> level1Categories = this.getLevel1Categories();
+
+        // 2、封装数据
+        Map<String, List<Catelog2VO>> map = level1Categories.stream().collect(Collectors.toMap(
+                k -> k.getCatId().toString(),
+                v -> {
+                    // 每一个的一级分类, 查到这个一级分类的二级分类
+                    List<CategoryEntity> categoryEntityList = baseMapper.selectList(new QueryWrapper<CategoryEntity>()
+                            .eq("parent_cid", v.getCatId()));
+
+                    List<Catelog2VO> catelog2VOList = new ArrayList<>();
+                    if (null != categoryEntityList) {
+                        catelog2VOList = categoryEntityList.stream().map(item -> {
+                                    Catelog2VO catelog2VO = new Catelog2VO(v.getCatId().toString(), null, item.getCatId().toString(), item.getName());
+
+                                    // 找到当前二级分类的三级分类封装成VO
+                                    List<CategoryEntity> entities = baseMapper.selectList(new QueryWrapper<CategoryEntity>().eq("parent_cid", catelog2VO.getId()));
+                                    List<Catelog2VO.Catelog3VO> catelog3VOList = new ArrayList<>();
+                                    if (null != entities) {
+                                        catelog3VOList = entities.stream().map(x ->
+                                                new Catelog2VO.Catelog3VO(item.getCatId().toString(), x.getCatId().toString(), x.getName())
+                                        ).collect(Collectors.toList());
+                                    }
+                                    catelog2VO.setCatalog3List(catelog3VOList);
+
+                                    return catelog2VO;
+                                })
+                                .collect(Collectors.toList());
+                    }
+                    return catelog2VOList;
+                }
+        ));
+
+        log.info("**********map = {}", map);
+
+        return map;
     }
 
     /**

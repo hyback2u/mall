@@ -3,6 +3,7 @@ package com.wxl.mall.product.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.wxl.common.utils.PageUtils;
 import com.wxl.mall.product.entity.CategoryEntity;
+import com.wxl.mall.product.vo.Catelog2VO;
 
 import java.util.List;
 import java.util.Map;
@@ -43,5 +44,19 @@ public interface CategoryService extends IService<CategoryEntity> {
      * @param category 分类实例
      */
     void updateCascade(CategoryEntity category);
+
+    /**
+     * 一级分类数据
+     *
+     * @return data
+     */
+    List<CategoryEntity> getLevel1Categories();
+
+    /**
+     * [前端]查出所有分类, 按照形式组织后返回
+     *
+     * @return data
+     */
+    Map<String, List<Catelog2VO>> getCatalogJson();
 }
 
