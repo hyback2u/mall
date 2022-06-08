@@ -23,6 +23,19 @@ public class IndexController {
     @Resource
     private CategoryService categoryService;
 
+
+    /**
+     * 压测简单服务
+     *
+     * @return 压力测试
+     */
+    @ResponseBody
+    @GetMapping("/hello")
+    public String hello() {
+        return "hello";
+    }
+
+
     /**
      * 首页跳转, 渲染一级分类数据
      *
