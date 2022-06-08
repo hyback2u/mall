@@ -61,6 +61,11 @@ spring:
           filters:
             - RewritePath=/api/(?<segment>.*), /renren-fast/$\{segment}
 
+        # mall-host
+        - id: mall_host_route
+          uri: lb://mall-product
+          predicates:
+            - Host=**.mall.com
 
 
 # 定义规则: 前端项目, 发送请求都带有/api前缀
