@@ -55,8 +55,19 @@ public interface CategoryService extends IService<CategoryEntity> {
     /**
      * [前端]查出所有分类, 按照形式组织后返回
      *
+     * @deprecated after optimization
+     * @see CategoryService#getCatalogJsonPlus()
      * @return data
      */
+    @Deprecated
     Map<String, List<Catelog2VO>> getCatalogJson();
+
+
+    /**
+     * [前端]查出所有分类, 按照形式组织后返回
+     *
+     * @return data
+     */
+    Map<String, List<Catelog2VO>> getCatalogJsonPlus();
 }
 

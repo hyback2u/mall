@@ -127,8 +127,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
      */
     @Override
     public List<CategoryEntity> getLevel1Categories() {
-        return this.baseMapper.selectList(new QueryWrapper<CategoryEntity>()
-                .eq("parent_cid", 0));
+        return this.baseMapper.selectList(new QueryWrapper<CategoryEntity>().eq("parent_cid", 0));
     }
 
 
@@ -143,40 +142,88 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
         List<CategoryEntity> level1Categories = this.getLevel1Categories();
 
         // 2、封装数据
-        Map<String, List<Catelog2VO>> map = level1Categories.stream().collect(Collectors.toMap(
-                k -> k.getCatId().toString(),
-                v -> {
-                    // 每一个的一级分类, 查到这个一级分类的二级分类
-                    List<CategoryEntity> categoryEntityList = baseMapper.selectList(new QueryWrapper<CategoryEntity>()
-                            .eq("parent_cid", v.getCatId()));
+        Map<String, List<Catelog2VO>> map = level1Categories.stream().collect(Collectors.toMap(k -> k.getCatId().toString(), v -> {
+            // 每一个的一级分类, 查到这个一级分类的二级分类
+            List<CategoryEntity> categoryEntityList = baseMapper.selectList(new QueryWrapper<CategoryEntity>().eq("parent_cid", v.getCatId()));
 
-                    List<Catelog2VO> catelog2VOList = new ArrayList<>();
-                    if (null != categoryEntityList) {
-                        catelog2VOList = categoryEntityList.stream().map(item -> {
-                                    Catelog2VO catelog2VO = new Catelog2VO(v.getCatId().toString(), null, item.getCatId().toString(), item.getName());
+            List<Catelog2VO> catelog2VOList = new ArrayList<>();
+            if (null != categoryEntityList) {
+                catelog2VOList = categoryEntityList.stream().map(item -> {
+                    Catelog2VO catelog2VO = new Catelog2VO(v.getCatId().toString(), null, item.getCatId().toString(), item.getName());
 
-                                    // 找到当前二级分类的三级分类封装成VO
-                                    List<CategoryEntity> entities = baseMapper.selectList(new QueryWrapper<CategoryEntity>().eq("parent_cid", catelog2VO.getId()));
-                                    List<Catelog2VO.Catelog3VO> catelog3VOList = new ArrayList<>();
-                                    if (null != entities) {
-                                        catelog3VOList = entities.stream().map(x ->
-                                                new Catelog2VO.Catelog3VO(item.getCatId().toString(), x.getCatId().toString(), x.getName())
-                                        ).collect(Collectors.toList());
-                                    }
-                                    catelog2VO.setCatalog3List(catelog3VOList);
-
-                                    return catelog2VO;
-                                })
-                                .collect(Collectors.toList());
+                    // 找到当前二级分类的三级分类封装成VO
+                    List<CategoryEntity> entities = baseMapper.selectList(new QueryWrapper<CategoryEntity>().eq("parent_cid", catelog2VO.getId()));
+                    List<Catelog2VO.Catelog3VO> catelog3VOList = new ArrayList<>();
+                    if (null != entities) {
+                        catelog3VOList = entities.stream().map(x -> new Catelog2VO.Catelog3VO(item.getCatId().toString(), x.getCatId().toString(), x.getName())).collect(Collectors.toList());
                     }
-                    return catelog2VOList;
-                }
-        ));
+                    catelog2VO.setCatalog3List(catelog3VOList);
+
+                    return catelog2VO;
+                }).collect(Collectors.toList());
+            }
+            return catelog2VOList;
+        }));
 
         log.info("**********map = {}", map);
 
         return map;
     }
+
+
+    /**
+     * [前端]查出所有分类, 按照形式组织后返回
+     * 优化项:将数据库的多次查询变为一次
+     *
+     * @return data
+     */
+    @Override
+    public Map<String, List<Catelog2VO>> getCatalogJsonPlus() {
+        // 优化项:将数据库的多次查询变为一次
+        List<CategoryEntity> categoryEntityList = this.baseMapper.selectList(null);
+
+        // 1、获取所有一级分类(有优化)
+        List<CategoryEntity> level1Categories = getSonCategories(categoryEntityList, 0L);
+
+        // 2、封装数据
+        return level1Categories.stream().collect(Collectors.toMap(k -> k.getCatId().toString(), v -> {
+            // 每个一级分类下的二级分类
+            List<CategoryEntity> level2Categories = getSonCategories(categoryEntityList, v.getCatId());
+
+            // 根据二级分类进行结果封装
+            List<Catelog2VO> catelog2VOList = new ArrayList<>();
+            if (null != level2Categories) {
+                catelog2VOList = level2Categories.stream().map(level2Category -> {
+                    Catelog2VO catelog2VO = new Catelog2VO(v.getCatId().toString(), null, level2Category.getCatId().toString(), level2Category.getName());
+
+                    // 设置二级分类下的三级分类
+                    List<CategoryEntity> level3Categories = getSonCategories(categoryEntityList, level2Category.getCatId());
+                    if (null != level3Categories) {
+                        List<Catelog2VO.Catelog3VO> catelog3VOList = level3Categories.stream()
+                                .map(level3Category -> new Catelog2VO.Catelog3VO(level2Category.getCatId().toString(), level3Category.getCatId().toString(), level3Category.getName()))
+                                .collect(Collectors.toList());
+                        catelog2VO.setCatalog3List(catelog3VOList);
+                    }
+
+                    return catelog2VO;
+                }).collect(Collectors.toList());
+            }
+
+            return catelog2VOList;
+        }));
+    }
+
+    /**
+     * 从指定分类数据中, 找到指定父id下的所有子分类(相比较而言, 优化为在内存中过滤, 且减少与db的交互)
+     *
+     * @param categoryEntityList 给定的分类数据
+     * @param parentCid          给定的父id
+     * @return categoryEntityList#filter
+     */
+    private List<CategoryEntity> getSonCategories(List<CategoryEntity> categoryEntityList, Long parentCid) {
+        return categoryEntityList.stream().filter(categoryEntity -> categoryEntity.getParentCid().equals(parentCid)).collect(Collectors.toList());
+    }
+
 
     /**
      * 根据三级分类id查询出该分类的完整路径
