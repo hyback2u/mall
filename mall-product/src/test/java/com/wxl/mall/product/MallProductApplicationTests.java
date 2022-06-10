@@ -13,10 +13,13 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * @author wangxl
@@ -35,6 +38,26 @@ public class MallProductApplicationTests {
 
     @Autowired
     CategoryService categoryService;
+
+    @Autowired
+    StringRedisTemplate stringRedisTemplate;
+
+
+    /**
+     * 测试Redis的简单使用
+     */
+    @Test
+    public void stringRedisTemplateTest() {
+        ValueOperations<String, String> ops = stringRedisTemplate.opsForValue();
+
+        // 保存
+        ops.set("hello", "world_" + UUID.randomUUID());
+
+        // 查询
+        String hello = ops.get("hello");
+        System.out.println("之前保存的数据是：" + hello);
+    }
+
 
     /**
      * 测试:根据三级分类id查询出该分类的完整路径
