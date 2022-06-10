@@ -1,5 +1,7 @@
 package com.wxl.mall.product.service.impl;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.TypeReference;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -12,6 +14,7 @@ import com.wxl.mall.product.service.CategoryService;
 import com.wxl.mall.product.vo.Catelog2VO;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,6 +28,9 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
 
     @Resource
     private CategoryBrandRelationService categoryBrandRelationService;
+
+    @Resource
+    private StringRedisTemplate stringRedisTemplate;
 
 //    /**
 //     * 最简单的缓存技术, Map
@@ -226,6 +232,40 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
         // 给缓存中放一份
 //        cache.put("catalogJson", map);
 //        return map;
+    }
+
+    /**
+     * [前端]查出所有分类, 按照形式组织后返回
+     * -----------------------------------
+     * 优化项: 引入redis缓存中间件
+     *
+     * -------------------------------------------------------------------------------------
+     * 说明:给缓存中放json字符串, 拿出的json字符串, 还要逆转为能用的对象类型 --> 序列化 & 反序列化
+     * -------------------------------------------------------------------------------------
+     * 由于网络传输, 要存到远程的redis里面, 肯定要整成一个可传输的流(串)数据, 即:序列化与反序列化
+     *
+     * fixme:堆外内存溢出 OutOfDirectMemoryError
+     *
+     * @return data
+     */
+    @Override
+    public Map<String, List<Catelog2VO>> getCatalogJsonPlusPro() {
+        // 1、加入缓存逻辑(缓存中存的数据都是Json字符串, Json的好处就是, 跨语言、跨平台兼容的)
+        String catalogJson = stringRedisTemplate.opsForValue().get("catalogJson");
+        // 2、缓存中有, 返回缓存内容
+        if (StringUtils.isNotEmpty(catalogJson)) {
+            log.info("********redis log, 命中缓存, 返回缓存内容");
+            // 拿出的字符串, 逆转为能用的对象类型
+            return JSON.parseObject(catalogJson, new TypeReference<Map<String, List<Catelog2VO>>>() {});
+        }
+
+        // 3、缓存中没有, 查询数据库
+        log.info("********redis log, 从数据库中获取返回");
+        Map<String, List<Catelog2VO>> catalogJsonFromDB = getCatalogJsonPlus();
+        // 3.1 查到的数据放入缓存, 将对象转为Json放入缓存
+        stringRedisTemplate.opsForValue().set("catalogJson", JSON.toJSONString(catalogJsonFromDB));
+
+        return catalogJsonFromDB;
     }
 
     /**

@@ -61,6 +61,7 @@ public class IndexController {
     @GetMapping("/index/catalog.json")
     public Map<String, List<Catelog2VO>> getCatalogJson() {
 //        return categoryService.getCatalogJson();
-        return categoryService.getCatalogJsonPlus();
+//        return categoryService.getCatalogJsonPlus();
+        return categoryService.getCatalogJsonPlusPro();
     }
 }

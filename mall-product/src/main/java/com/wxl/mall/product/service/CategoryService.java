@@ -65,9 +65,23 @@ public interface CategoryService extends IService<CategoryEntity> {
 
     /**
      * [前端]查出所有分类, 按照形式组织后返回
+     * -----------------------------------
+     * first optimization:减少与数据库的交互
+     *
+     * @deprecated optimization:引入redis缓存
+     * @see CategoryService#getCatalogJsonPlusPro()
+     * @return data
+     */
+    @Deprecated
+    Map<String, List<Catelog2VO>> getCatalogJsonPlus();
+
+    /**
+     * [前端]查出所有分类, 按照形式组织后返回
+     * -----------------------------------
+     * final optimization:使用redis缓存中间件
      *
      * @return data
      */
-    Map<String, List<Catelog2VO>> getCatalogJsonPlus();
+    Map<String, List<Catelog2VO>> getCatalogJsonPlusPro();
 }
 
