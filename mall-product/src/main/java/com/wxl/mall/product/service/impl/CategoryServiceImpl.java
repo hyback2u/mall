@@ -26,6 +26,11 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
     @Resource
     private CategoryBrandRelationService categoryBrandRelationService;
 
+    /**
+     * 最简单的缓存技术, Map
+     */
+    private Map<String, Object> cache = new HashMap<>();
+
     // 这是最原始的写法, 但是因为已经继承了ServiceImpl, 且该实现加入了泛型CategoryDao的实现
 //    @Resource
 //    private CategoryDao categoryDao;
@@ -179,6 +184,12 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
      */
     @Override
     public Map<String, List<Catelog2VO>> getCatalogJsonPlus() {
+        Map<String, List<Catelog2VO>> cacheData = (Map<String, List<Catelog2VO>>) cache.get("catalogJson");
+        if(cache.get("catalogJson") != null) {
+            log.info("****************getData from cache");
+            return cacheData;
+        }
+
         // 优化项:将数据库的多次查询变为一次
         List<CategoryEntity> categoryEntityList = this.baseMapper.selectList(null);
 
@@ -186,7 +197,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
         List<CategoryEntity> level1Categories = getSonCategories(categoryEntityList, 0L);
 
         // 2、封装数据
-        return level1Categories.stream().collect(Collectors.toMap(k -> k.getCatId().toString(), v -> {
+        Map<String, List<Catelog2VO>> map = level1Categories.stream().collect(Collectors.toMap(k -> k.getCatId().toString(), v -> {
             // 每个一级分类下的二级分类
             List<CategoryEntity> level2Categories = getSonCategories(categoryEntityList, v.getCatId());
 
@@ -211,6 +222,11 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
 
             return catelog2VOList;
         }));
+
+        // 给缓存中放一份
+        cache.put("catalogJson", map);
+
+        return map;
     }
 
     /**
