@@ -16,6 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.stereotype.Service;
@@ -140,12 +141,24 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
 
     /**
      * 一级分类数据
+     * 1、@Cacheable:代表当前方法的结果需要缓存, 如果缓存中有, 方法不用调用, 如果缓存中没有, 会调用方法
+     * 最后将方法的结果存入缓存
+     * 2、每一个需要缓存的数据我们都来指定要放到哪个名字的缓存(缓存的分区-按照业务类型分)
      *
      * @return data
      */
+    @Cacheable(value = {"category"}, key = "#root.method.name")
     @Override
     public List<CategoryEntity> getLevel1Categories() {
-        return this.baseMapper.selectList(new QueryWrapper<CategoryEntity>().eq("parent_cid", 0));
+        System.out.println("************method invoke... getLevel1Categories()");
+
+        long startAt = System.currentTimeMillis();
+        List<CategoryEntity> level1Categories = this.baseMapper.selectList(new QueryWrapper<CategoryEntity>().eq("parent_cid", 0));
+        long endAt = System.currentTimeMillis();
+
+        System.out.println("method invoke use: " + (endAt - startAt));
+
+        return level1Categories;
     }
 
 
@@ -247,7 +260,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
 
     /**
      * Redisson Lock
-     *
+     * <p>
      * 缓存里的数据, 如何和数据库里的数据保持一直一致？ 缓存数据一致性问题
      * 1、双写模式
      * 2、失效模式
@@ -267,7 +280,6 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
 
         return data;
     }
-
 
 
     /**
