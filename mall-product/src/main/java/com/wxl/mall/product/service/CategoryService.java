@@ -75,13 +75,25 @@ public interface CategoryService extends IService<CategoryEntity> {
     @Deprecated
     Map<String, List<Catelog2VO>> getCatalogJsonPlus();
 
+
     /**
      * [前端]查出所有分类, 按照形式组织后返回
      * -----------------------------------
      * final optimization:使用redis缓存中间件
      *
+     * @deprecated optimization:使用spring-cache
+     * @see CategoryService#getCatalogJsonWithCache()
      * @return data
      */
+    @Deprecated
     Map<String, List<Catelog2VO>> getCatalogJsonPlusPro();
+
+
+    /**
+     * final optimization:使用spring-cache
+     *
+     * @return data
+     */
+    Map<String, List<Catelog2VO>> getCatalogJsonWithCache();
 }
 

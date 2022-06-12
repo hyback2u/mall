@@ -16,7 +16,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.stereotype.Service;
@@ -118,9 +120,15 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
      * 在更新分类实例的同时, 更新关联的所有的冗余表, 保证冗余字段的数据一致
      * 这里需要开启MyBatisPlus中的事务注解, 这里才能使用事务
      *
+     * 1、@CacheEvict:缓存一致性解决方案-失效模式
+     *
      * @param category 分类实例
      * @see com.wxl.mall.product.config.MyBatisPlusConfig 开启事务
      */
+    @Caching(evict = {
+            @CacheEvict(value = {"category"}, key = "'getLevel1Categories'"),
+            @CacheEvict(value = {"category"}, key = "'getCatalogJsonWithCache'")
+    })
     @Override
     @Transactional
     public void updateCascade(CategoryEntity category) {
@@ -167,6 +175,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
      *
      * @return data
      */
+    @Deprecated
     @Override
     public Map<String, List<Catelog2VO>> getCatalogJson() {
         // 1、查出所有一级分类
@@ -207,8 +216,9 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
      * 优化项:将数据库的多次查询变为一次
      *
      * @return data
-     * @see CategoryServiceImpl#getCatalogDataFromDB()
+     * @copy CategoryServiceImpl#getCatalogDataFromDB()
      */
+    @Deprecated
     @Override
     public Map<String, List<Catelog2VO>> getCatalogJsonPlus() {
         // 说明:这块为了代码后续方法review以及见名知意的复用, 这里将原先逻辑抽取为getCatalogDataFromDB()方法
@@ -229,6 +239,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
      *
      * @return data
      */
+    @Deprecated
     @Override
     public Map<String, List<Catelog2VO>> getCatalogJsonPlusPro() {
         // 1、加入缓存逻辑(缓存中存的数据都是Json字符串, Json的好处就是, 跨语言、跨平台兼容的)
@@ -253,6 +264,21 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
         log.info("******************************************************************");
 
         return catalogJsonFromDB;
+    }
+
+
+    /**
+     * [前端]查出所有分类, 按照形式组织后返回
+     * -----------------------------------
+     * 优化项: 使用spring-cache
+     *
+     * @return data
+     */
+    @Cacheable(value = {"category"}, key = "#root.methodName")
+    @Override
+    public Map<String, List<Catelog2VO>> getCatalogJsonWithCache() {
+        System.out.println("************* execute getCatalogJsonWithCache()");
+        return getCatalogDataFromDB();
     }
 
 

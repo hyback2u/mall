@@ -210,6 +210,7 @@ public class IndexController {
     public Map<String, List<Catelog2VO>> getCatalogJson() {
 //        return categoryService.getCatalogJson();
 //        return categoryService.getCatalogJsonPlus();
-        return categoryService.getCatalogJsonPlusPro();
+//        return categoryService.getCatalogJsonPlusPro();
+        return categoryService.getCatalogJsonWithCache();
     }
 }
