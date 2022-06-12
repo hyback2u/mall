@@ -65,8 +65,13 @@ spring:
         - id: mall_host_route
           uri: lb://mall-product
           predicates:
-            - Host=**.mall.com
+            - Host=mall.com
 
+        # search-host
+        - id: search_host_route
+          uri: lb://mall-search
+          predicates:
+            - Host=search.mall.com
 
 # 定义规则: 前端项目, 发送请求都带有/api前缀
 
