@@ -3,6 +3,7 @@ package com.wxl.mall.product.web;
 import com.wxl.mall.product.entity.CategoryEntity;
 import com.wxl.mall.product.service.CategoryService;
 import com.wxl.mall.product.vo.Catelog2VO;
+import org.redisson.api.RCountDownLatch;
 import org.redisson.api.RLock;
 import org.redisson.api.RReadWriteLock;
 import org.redisson.api.RedissonClient;
@@ -10,6 +11,7 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.annotation.Resource;
@@ -33,6 +35,32 @@ public class IndexController {
 
     @Resource
     private StringRedisTemplate stringRedisTemplate;
+
+
+    /**
+     * Redisson闭锁
+     * 场景:放假锁门, 一共5个班级, 5个班全部走完, 可以锁大门
+     */
+    @GetMapping("/lockDoor")
+    @ResponseBody
+    public String lockDoor() throws InterruptedException {
+        RCountDownLatch door = redissonClient.getCountDownLatch("door");
+        door.trySetCount(5);
+        // 等待闭锁都完成
+        door.await();
+
+        return "锁大门, 放假了放假了...";
+    }
+
+    @GetMapping("/go/{id}")
+    @ResponseBody
+    public String go(@PathVariable("id") Long id) {
+        RCountDownLatch door = redissonClient.getCountDownLatch("door");
+        // 计数减一
+        door.countDown();
+
+        return id + " 班的人走了...";
+    }
 
 
     /**
