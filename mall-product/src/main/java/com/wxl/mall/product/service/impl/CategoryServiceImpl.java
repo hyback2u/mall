@@ -18,7 +18,6 @@ import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.cache.annotation.Caching;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.stereotype.Service;
@@ -125,10 +124,11 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
      * @param category 分类实例
      * @see com.wxl.mall.product.config.MyBatisPlusConfig 开启事务
      */
-    @Caching(evict = {
-            @CacheEvict(value = {"category"}, key = "'getLevel1Categories'"),
-            @CacheEvict(value = {"category"}, key = "'getCatalogJsonWithCache'")
-    })
+//    @Caching(evict = {
+//            @CacheEvict(value = {"category"}, key = "'getLevel1Categories'"),
+//            @CacheEvict(value = {"category"}, key = "'getCatalogJsonWithCache'")
+//    })
+    @CacheEvict(value = "category", allEntries = true)
     @Override
     @Transactional
     public void updateCascade(CategoryEntity category) {
