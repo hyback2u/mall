@@ -3,10 +3,7 @@ package com.wxl.mall.product.web;
 import com.wxl.mall.product.entity.CategoryEntity;
 import com.wxl.mall.product.service.CategoryService;
 import com.wxl.mall.product.vo.Catelog2VO;
-import org.redisson.api.RCountDownLatch;
-import org.redisson.api.RLock;
-import org.redisson.api.RReadWriteLock;
-import org.redisson.api.RedissonClient;
+import org.redisson.api.*;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -35,6 +32,31 @@ public class IndexController {
 
     @Resource
     private StringRedisTemplate stringRedisTemplate;
+
+
+    /**
+     * 车库停车, 3车位
+     */
+    @GetMapping("/park")
+    @ResponseBody
+    public String park() throws InterruptedException {
+        RSemaphore park = redissonClient.getSemaphore("park");
+        // 获取一个信号, 获取一个值, 占一个车位
+        park.acquire();
+
+        return "车子停了一个...";
+    }
+
+
+    @GetMapping("/cargo")
+    @ResponseBody
+    public String go() {
+        RSemaphore park = redissonClient.getSemaphore("park");
+        // 释放一个车位
+        park.release();
+
+        return "车走了一个...";
+    }
 
 
     /**
