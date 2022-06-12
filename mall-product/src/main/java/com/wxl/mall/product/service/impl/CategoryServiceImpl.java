@@ -128,6 +128,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
 //            @CacheEvict(value = {"category"}, key = "'getLevel1Categories'"),
 //            @CacheEvict(value = {"category"}, key = "'getCatalogJsonWithCache'")
 //    })
+//    @CachePut // 双写模式使用
     @CacheEvict(value = "category", allEntries = true)
     @Override
     @Transactional
