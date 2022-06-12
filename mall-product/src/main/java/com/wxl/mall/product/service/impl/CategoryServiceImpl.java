@@ -14,6 +14,8 @@ import com.wxl.mall.product.service.CategoryService;
 import com.wxl.mall.product.vo.Catelog2VO;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.stereotype.Service;
@@ -33,6 +35,9 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
 
     @Resource
     private StringRedisTemplate stringRedisTemplate;
+
+    @Resource
+    private RedissonClient redissonClient;
 
 //    /**
 //     * 最简单的缓存技术, Map
@@ -227,7 +232,9 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
         log.info("********redis log, 从数据库中获取返回");
 //        Map<String, List<Catelog2VO>> catalogJsonFromDB = getCatalogDataFromDB();
         // 采用锁
-        Map<String, List<Catelog2VO>> catalogJsonFromDB = getCatalogDataWithRedisLock();
+//        Map<String, List<Catelog2VO>> catalogJsonFromDB = getCatalogDataWithRedisLock();
+        Map<String, List<Catelog2VO>> catalogJsonFromDB = getCatalogDataWithRedisson();
+
         // 3.1 查到的数据放入缓存, 将对象转为Json放入缓存 --> 本地锁的情况下, 这块内容需要同步到锁里面
 //        stringRedisTemplate.opsForValue().set("catalogJson", JSON.toJSONString(catalogJsonFromDB));
         log.info("******************************************************************");
@@ -239,8 +246,36 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
     // ------------------------------------------------------------------------------------------------------
 
     /**
-     * 使用Redis分布式锁
+     * Redisson Lock
+     *
+     * 缓存里的数据, 如何和数据库里的数据保持一直一致？ 缓存数据一致性问题
+     * 1、双写模式
+     * 2、失效模式
      */
+    public Map<String, List<Catelog2VO>> getCatalogDataWithRedisson() {
+        // 注意锁的名字, 锁的粒度越细越快
+        // 锁的粒度: 具体缓存的是某个数据, eg:11号商品 product-11-lock
+        RLock lock = redissonClient.getLock("catalogJson-lock");
+        lock.lock();
+
+        Map<String, List<Catelog2VO>> data;
+        try {
+            data = getCatalogDataFromDBAndPutCache();
+        } finally {
+            lock.unlock();
+        }
+
+        return data;
+    }
+
+
+
+    /**
+     * 使用Redis分布式锁
+     *
+     * @see CategoryServiceImpl#getCatalogDataWithRedisson()
+     */
+    @Deprecated
     public Map<String, List<Catelog2VO>> getCatalogDataWithRedisLock() {
         // 1、占分布式锁, 去redis占坑 + 设置过期时间(原子操作)
         String uuid = UUID.randomUUID().toString();
