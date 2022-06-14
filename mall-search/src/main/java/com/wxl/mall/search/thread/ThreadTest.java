@@ -1,9 +1,6 @@
 package com.wxl.mall.search.thread;
 
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.*;
 
 /**
  * 异步&多线程 复习
@@ -38,7 +35,17 @@ public class ThreadTest {
         // 当前系统中, 池只有一两个, 每个异步任务, 提交给线程池让他自己去执行就行
         service.execute(new Runnable01());
 
+        // new LinkedBlockingDeque<>(): 默认是Integer的最大值, 会导致内存不够, 所以一定要存入业务定制的数量
+        ThreadPoolExecutor executor = new ThreadPoolExecutor(5, 200,
+                10, TimeUnit.SECONDS,
+                new LinkedBlockingDeque<>(1000), Executors.defaultThreadFactory(),
+                new ThreadPoolExecutor.AbortPolicy());
 
+
+        Executors.newCachedThreadPool(); // core是0, 所以都可回收
+        Executors.newFixedThreadPool(100); // 固定大小, core=max, 都不可回收
+        Executors.newScheduledThreadPool(20); // 定时任务的线程池
+        Executors.newSingleThreadExecutor(); // 单线程的线程池, 后台从队列里面获取任务, 挨个执行
 
         System.out.println("main...end...");
     }
