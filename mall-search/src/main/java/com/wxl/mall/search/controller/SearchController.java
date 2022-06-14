@@ -1,7 +1,13 @@
 package com.wxl.mall.search.controller;
 
+import com.wxl.mall.search.service.MallSearchService;
+import com.wxl.mall.search.vo.SearchParam;
+import com.wxl.mall.search.vo.SearchResult;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+
+import javax.annotation.Resource;
 
 /**
  * @author wangxl
@@ -10,13 +16,20 @@ import org.springframework.web.bind.annotation.GetMapping;
 @Controller
 public class SearchController {
 
+    @Resource
+    private MallSearchService mallSearchService;
+
     /**
-     * 配置首页跳转
+     * SpringMVC, 自动将页面提交过来的所有请求查询参数封装成指定的对象
      *
-     * @return 转到list.html页面
+     * @return xxx
      */
     @GetMapping("/list.html")
-    public String listPage() {
+    public String listPage(SearchParam param, Model model) {
+        // 根据传递过来的页面的查询参数, 去ES中检索商品
+        SearchResult result = mallSearchService.search(param);
+        model.addAttribute("result", result);
+
         return "list";
     }
 
