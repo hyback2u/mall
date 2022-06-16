@@ -37,41 +37,41 @@ public class SkuItemVO {
     // 5、获取spu的规格参数信息
     private List<SpuItemAttrGroupVO> groupAttrs;
 
-    /**
-     * Item销售属性组合VO
-     */
-    @Data
-    @AllArgsConstructor
-    @NoArgsConstructor
-    @ToString
-    public static class SkuItemSaleAttrVO {
-        private Long attrId;
-        private String attrName;
-        private List<String> attrValues;
-    }
+//    /**
+//     * Item销售属性组合VO
+//     */
+//    @Data
+//    @AllArgsConstructor
+//    @NoArgsConstructor
+//    @ToString
+//    public static class SkuItemSaleAttrVO {
+//        private Long attrId;
+//        private String attrName;
+//        private List<String> attrValues;
+//    }
 
 
-    /**
-     * Spu基本属性VO
-     */
-    @Data
-    @AllArgsConstructor
-    @NoArgsConstructor
-    @ToString
-    public static class SpuItemAttrGroupVO {
-        private String groupName;
-        private List<SpuBaseAttrVO> attrs;
-    }
+//    /**
+//     * Spu基本属性VO
+//     */
+//    @Data
+//    @AllArgsConstructor
+//    @NoArgsConstructor
+//    @ToString
+//    public static class SpuItemAttrGroupVO {
+//        private String groupName;
+//        private List<SpuBaseAttrVO> attrs;
+//    }
 
-    /**
-     * 属性&属性值
-     */
-    @Data
-    @AllArgsConstructor
-    @NoArgsConstructor
-    @ToString
-    public static class SpuBaseAttrVO {
-        private String attrName;
-        private String attrValue;
-    }
+//    /**
+//     * 属性&属性值
+//     */
+//    @Data
+//    @AllArgsConstructor
+//    @NoArgsConstructor
+//    @ToString
+//    public static class SpuBaseAttrVO {
+//        private String attrName;
+//        private String attrValue;
+//    }
 }

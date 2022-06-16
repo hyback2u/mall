@@ -5,9 +5,11 @@ package com.wxl.mall.product;
 //import com.aliyun.oss.OSSClientBuilder;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.wxl.mall.product.dao.AttrGroupDao;
 import com.wxl.mall.product.entity.BrandEntity;
 import com.wxl.mall.product.service.BrandService;
 import com.wxl.mall.product.service.CategoryService;
+import com.wxl.mall.product.vo.SpuItemAttrGroupVO;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -41,6 +43,15 @@ public class MallProductApplicationTests {
 
     @Autowired
     StringRedisTemplate stringRedisTemplate;
+
+    @Autowired
+    AttrGroupDao attrGroupDao;
+
+    @Test
+    public void testSQL() {
+        List<SpuItemAttrGroupVO> vo = attrGroupDao.getAttrGroupWithAttrsBySpuId(4L, 225L);
+        System.out.println(vo);
+    }
 
 
     /**

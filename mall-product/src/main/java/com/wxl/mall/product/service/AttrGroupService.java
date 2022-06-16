@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.wxl.common.utils.PageUtils;
 import com.wxl.mall.product.entity.AttrGroupEntity;
 import com.wxl.mall.product.vo.AttrGroupWithAttrsVO;
+import com.wxl.mall.product.vo.SpuItemAttrGroupVO;
 
 import java.util.List;
 import java.util.Map;
@@ -36,5 +37,16 @@ public interface AttrGroupService extends IService<AttrGroupEntity> {
      * @return data -> VO
      */
     List<AttrGroupWithAttrsVO> getAttrGroupWithAttrsByCatelogId(Long catelogId);
+
+    /**
+     * 查出当前Spu对应的所有属性的分组信息, 以及当前分组下的所有属性对应的值
+     * ps:可以参考之前根据三级分类id获取的情况
+     *
+     * @see AttrGroupService#getAttrGroupWithAttrsByCatelogId(java.lang.Long)
+     * @param spuId spuId
+     * @param catalogId 三级分类id
+     * @return data -> VO
+     */
+    List<SpuItemAttrGroupVO> getAttrGroupWithAttrsBySpuId(Long spuId, Long catalogId);
 }
 

@@ -3,7 +3,7 @@
 
 <mapper namespace="com.wxl.mall.product.dao.AttrGroupDao">
 
-	<!-- 可根据自己的需求，是否要使用 -->
+    <!-- 可根据自己的需求，是否要使用 -->
     <resultMap type="com.wxl.mall.product.entity.AttrGroupEntity" id="attrGroupMap">
         <result property="attrGroupId" column="attr_group_id"/>
         <result property="attrGroupName" column="attr_group_name"/>
@@ -12,6 +12,27 @@
         <result property="icon" column="icon"/>
         <result property="catelogId" column="catelog_id"/>
     </resultMap>
+
+    <!--自定义结果集封装嵌套属性(只要有嵌套属性, 就要封装自定义结果集), 对象的对象的属性还是一个集合...-->
+    <resultMap id="spuItemAttrGroupVO" type="com.wxl.mall.product.vo.SpuItemAttrGroupVO">
+        <result property="groupName" column="attr_group_name"/>
+        <!--collection声明属性是一个集合, ofType指定集合里面元素的类型-->
+        <collection property="attrs" ofType="com.wxl.mall.product.vo.Attr">
+            <result column="attr_name" property="attrName"/>
+            <result column="attr_value" property="attrValue"/>
+        </collection>
+    </resultMap>
+
+    <!--组合查询-->
+    <select id="getAttrGroupWithAttrsBySpuId" resultMap="spuItemAttrGroupVO">
+        select ag.`attr_group_name`, attr.`attr_name`, pav.`attr_value`
+        from `pms_attr_group` ag
+                 left join `pms_attr_attrgroup_relation` aar on aar.`attr_group_id` = ag.`attr_group_id`
+                 left join `pms_attr` attr on attr.`attr_id` = aar.`attr_id`
+                 left join `pms_product_attr_value` pav on pav.`attr_id` = attr.`attr_id`
+        where ag.`catelog_id` = #{catalogId} and pav.`spu_id` = #{spuId}
+
+    </select>
 
 
 </mapper>

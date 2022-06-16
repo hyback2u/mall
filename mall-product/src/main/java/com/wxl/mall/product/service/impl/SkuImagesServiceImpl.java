@@ -10,6 +10,7 @@ import com.wxl.mall.product.entity.SkuImagesEntity;
 import com.wxl.mall.product.service.SkuImagesService;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Map;
 
 
@@ -24,6 +25,19 @@ public class SkuImagesServiceImpl extends ServiceImpl<SkuImagesDao, SkuImagesEnt
         );
 
         return new PageUtils(page);
+    }
+
+
+    /**
+     * 根据skuId查询sku的图片信息
+     *
+     * @param skuId skuId
+     * @return List
+     */
+    @Override
+    public List<SkuImagesEntity> getImagesBySkuId(Long skuId) {
+        return this.baseMapper.selectList(new QueryWrapper<SkuImagesEntity>()
+                .eq("sku_id", skuId));
     }
 
 }
