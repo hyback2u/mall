@@ -3,6 +3,7 @@ package com.wxl.mall.product.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.wxl.common.utils.PageUtils;
 import com.wxl.mall.product.entity.SkuInfoEntity;
+import com.wxl.mall.product.vo.SkuItemVO;
 
 import java.util.List;
 import java.util.Map;
@@ -34,5 +35,13 @@ public interface SkuInfoService extends IService<SkuInfoEntity> {
      * @return skuList
      */
     List<SkuInfoEntity> getSkusBySpuId(Long spuId);
+
+    /**
+     * 商品详情
+     *
+     * @param skuId skuId
+     * @return 商品详情模型数据
+     */
+    SkuItemVO item(Long skuId);
 }
 

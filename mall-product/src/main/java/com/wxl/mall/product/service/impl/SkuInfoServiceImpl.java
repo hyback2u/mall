@@ -8,6 +8,7 @@ import com.wxl.common.utils.Query;
 import com.wxl.mall.product.dao.SkuInfoDao;
 import com.wxl.mall.product.entity.SkuInfoEntity;
 import com.wxl.mall.product.service.SkuInfoService;
+import com.wxl.mall.product.vo.SkuItemVO;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Service;
@@ -81,6 +82,32 @@ public class SkuInfoServiceImpl extends ServiceImpl<SkuInfoDao, SkuInfoEntity> i
     @Override
     public List<SkuInfoEntity> getSkusBySpuId(Long spuId) {
         return this.list(new QueryWrapper<SkuInfoEntity>().eq("spu_id", spuId));
+    }
+
+
+    /**
+     * 商品详情
+     *
+     * @param skuId skuId
+     * @return 商品详情模型数据
+     */
+    @Override
+    public SkuItemVO item(Long skuId) {
+        SkuItemVO skuItemVO = new SkuItemVO();
+
+        // 1、sku基本信息获取 pms_sku_info
+
+        // 2、sku的图片信息 pms_sku_images
+
+        // 3、获取spu的销售属性组合
+
+        // 4、获取spu的介绍
+
+        // 5、获取spu的规格参数信息
+
+
+
+        return skuItemVO;
     }
 
 }
