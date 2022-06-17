@@ -7,6 +7,7 @@ import com.wxl.mall.product.vo.SkuItemVO;
 
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 /**
  * sku信息
@@ -42,6 +43,6 @@ public interface SkuInfoService extends IService<SkuInfoEntity> {
      * @param skuId skuId
      * @return 商品详情模型数据
      */
-    SkuItemVO item(Long skuId);
+    SkuItemVO item(Long skuId) throws ExecutionException, InterruptedException;
 }
 
