@@ -5,8 +5,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
-import java.util.List;
-
 /**
  * Item销售属性组合VO
  *
@@ -20,5 +18,5 @@ import java.util.List;
 public class SkuItemSaleAttrVO {
     private Long attrId;
     private String attrName;
-    private List<String> attrValues;
+    private String attrValues;
 }

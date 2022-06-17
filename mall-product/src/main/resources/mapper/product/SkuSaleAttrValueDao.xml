@@ -14,4 +14,15 @@
     </resultMap>
 
 
+    <select id="getSaleAttrsBySpuId" resultType="com.wxl.mall.product.vo.SkuItemSaleAttrVO">
+        select ssav.`attr_id`,
+               ssav.`attr_name`,
+               group_concat(distinct ssav.`attr_value`) attr_values
+        from `pms_sku_info` info
+                 left join `pms_sku_sale_attr_value` ssav on ssav.`sku_id` = info.`sku_id`
+        where info.`spu_id` = #{spuId}
+        group by ssav.`attr_id`, ssav.`attr_name`
+    </select>
+
+
 </mapper>

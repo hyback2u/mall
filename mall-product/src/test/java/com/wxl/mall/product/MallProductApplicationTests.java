@@ -6,9 +6,11 @@ package com.wxl.mall.product;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.wxl.mall.product.dao.AttrGroupDao;
+import com.wxl.mall.product.dao.SkuSaleAttrValueDao;
 import com.wxl.mall.product.entity.BrandEntity;
 import com.wxl.mall.product.service.BrandService;
 import com.wxl.mall.product.service.CategoryService;
+import com.wxl.mall.product.vo.SkuItemSaleAttrVO;
 import com.wxl.mall.product.vo.SpuItemAttrGroupVO;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
@@ -46,6 +48,15 @@ public class MallProductApplicationTests {
 
     @Autowired
     AttrGroupDao attrGroupDao;
+
+    @Autowired
+    SkuSaleAttrValueDao skuSaleAttrValueDao;
+
+    @Test
+    public void testSQL2() {
+        List<SkuItemSaleAttrVO> saleAttrsBySpuId = skuSaleAttrValueDao.getSaleAttrsBySpuId(4L);
+        System.out.println(saleAttrsBySpuId);
+    }
 
     @Test
     public void testSQL() {

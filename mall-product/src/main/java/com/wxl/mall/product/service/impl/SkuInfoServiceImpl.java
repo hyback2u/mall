@@ -9,10 +9,8 @@ import com.wxl.mall.product.dao.SkuInfoDao;
 import com.wxl.mall.product.entity.SkuImagesEntity;
 import com.wxl.mall.product.entity.SkuInfoEntity;
 import com.wxl.mall.product.entity.SpuInfoDescEntity;
-import com.wxl.mall.product.service.AttrGroupService;
-import com.wxl.mall.product.service.SkuImagesService;
-import com.wxl.mall.product.service.SkuInfoService;
-import com.wxl.mall.product.service.SpuInfoDescService;
+import com.wxl.mall.product.service.*;
+import com.wxl.mall.product.vo.SkuItemSaleAttrVO;
 import com.wxl.mall.product.vo.SkuItemVO;
 import com.wxl.mall.product.vo.SpuItemAttrGroupVO;
 import lombok.extern.slf4j.Slf4j;
@@ -29,12 +27,12 @@ public class SkuInfoServiceImpl extends ServiceImpl<SkuInfoDao, SkuInfoEntity> i
 
     @Resource
     private SkuImagesService skuImagesService;
-
     @Resource
     private SpuInfoDescService spuInfoDescService;
-
     @Resource
     private AttrGroupService attrGroupService;
+    @Resource
+    private SkuSaleAttrValueService skuSaleAttrValueService;
 
 
     @Override
@@ -123,6 +121,8 @@ public class SkuInfoServiceImpl extends ServiceImpl<SkuInfoDao, SkuInfoEntity> i
         skuItemVO.setImages(images);
 
         // 3、获取spu的销售属性组合
+        List<SkuItemSaleAttrVO> saleAttrVOs = skuSaleAttrValueService.getSaleAttrsBySpuId(spuId);
+        skuItemVO.setSaleAttr(saleAttrVOs);
 
 
         // 4、获取spu的介绍
