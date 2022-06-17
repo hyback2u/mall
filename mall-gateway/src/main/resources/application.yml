@@ -73,6 +73,12 @@ spring:
           predicates:
             - Host=search.mall.com
 
+        # auth-host
+        - id: mall_auth_route
+          uri: lb://mall-auth-server
+          predicates:
+            - Host=auth.mall.com
+
 # 定义规则: 前端项目, 发送请求都带有/api前缀
 
 # http://localhost:88/api/captcha.jpg -> http://renren-fast:8080/api/captcha.jpg
