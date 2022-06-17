@@ -31,3 +31,10 @@ mybatis-plus:
 logging:
   level:
     com.wxl.mall: debug
+
+# 自定义线程池属性配置绑定
+mall:
+  thread:
+    core-size: 100
+    max-size: 500
+    keep-alive-time: 10
