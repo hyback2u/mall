@@ -18,4 +18,10 @@
     </resultMap>
 
 
+    <!--默认的会员等级-->
+    <select id="getDefaultLevel" resultType="com.wxl.mall.member.entity.MemberLevelEntity">
+        select * from `ums_member_level` where `default_status` = 1;
+    </select>
+
+
 </mapper>

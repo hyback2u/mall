@@ -5,9 +5,10 @@ import com.wxl.common.utils.R;
 import com.wxl.mall.member.entity.MemberEntity;
 import com.wxl.mall.member.feign.CouponFeignService;
 import com.wxl.mall.member.service.MemberService;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.wxl.mall.member.vo.MemberRegisterVO;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.Resource;
 import java.util.Arrays;
 import java.util.Map;
 
@@ -22,11 +23,32 @@ import java.util.Map;
 @RestController
 @RequestMapping("member/member")
 public class MemberController {
-    @Autowired
+    @Resource
     private MemberService memberService;
 
-    @Autowired
+    @Resource
     private CouponFeignService couponFeignService;
+
+
+    /**
+     * 注册
+     *
+     * @param vo 会员注册VO
+     * @return R
+     */
+    @PostMapping("/register")
+    public R register(@RequestBody MemberRegisterVO vo) {
+        try {
+            memberService.checkPhoneUnique(vo.getPhone());
+            memberService.checkUsernameUnique(vo.getUserName());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        memberService.register(vo);
+
+        return R.ok();
+    }
 
     /**
      * 获取当前会员的所有优惠券

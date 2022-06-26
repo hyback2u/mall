@@ -57,23 +57,43 @@ public class LoginController {
         if (result.hasErrors()) {
             // 方便页面进行提取
             Map<String, String> errors = new HashMap<>();
+            // > 这里不使用stream.toMap...
             for (FieldError fieldError : result.getFieldErrors()) {
                 errors.put(fieldError.getField(), fieldError.getDefaultMessage());
             }
-//            Map<String, String> errors = result.getFieldErrors().stream().collect(Collectors.toMap(
-//                    FieldError::getField,
-//                    DefaultMessageSourceResolvable::getDefaultMessage
-//            ));
             attributes.addFlashAttribute("errors", errors);
 
             // Request method 'POST' not supported, 转发 reg.html (路径映射默认都是get方式访问的)
-
-
-            // 如果有错误, 重定向到注册页面(防止页面重复提交) ---> 这样的话, 数据肯定不行了？ 不然你重定向去百度...
+            // 如果有错误, 重定向到注册页面(防止页面重复提交) ---> 这样的话, 数据肯定不行了？ 不然你重定向去百度... fixme
             return "redirect:http://auth.mall.com/reg.html";
         }
 
-        // 2、注册
+        // 2、真正注册, 调用远程服务进行注册
+        // 2.1 校验验证码
+        String code = vo.getCode();
+        String codeFromRedis = stringRedisTemplate.opsForValue().get(AuthServerConstant.SMS_CODE_CACHE_PREFIX + vo.getPhone());
+        if (StringUtils.isBlank(codeFromRedis)) {
+            // 验证码过期了
+            Map<String, String> errors = new HashMap<>();
+            errors.put("code", "验证码错误");
+            attributes.addFlashAttribute("errors", errors);
+            return "redirect:http://auth.mall.com/reg.html";
+        } else {
+            // split
+            if (codeFromRedis.split("_")[0].equals(code)) {
+                // 1、删除验证码:令牌机制
+                stringRedisTemplate.delete(AuthServerConstant.SMS_CODE_CACHE_PREFIX + vo.getPhone());
+                // 2、验证码对比层成功, 调用远程服务进行注册
+
+            } else {
+                // 验证不通过的逻辑
+                Map<String, String> errors = new HashMap<>();
+                errors.put("code", "验证码输入错误");
+                attributes.addFlashAttribute("errors", errors);
+                return "redirect:http://auth.mall.com/reg.html";
+            }
+        }
+
 
         // 注册成功, 回到登录页面
         return "redirect:/login.html";
