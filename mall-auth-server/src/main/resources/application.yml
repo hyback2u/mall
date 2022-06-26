@@ -10,3 +10,6 @@ spring:
         server-addr: 127.0.0.1:8848
   thymeleaf:
     cache: false # 开发期间为了看到实时修改效果, 这里关闭缓存
+  redis:
+    host: 192.168.56.10 # redis主机地址
+    port: 6379 # redis端口号
