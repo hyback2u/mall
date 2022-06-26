@@ -166,8 +166,7 @@ public class LoginController {
         }
 
         // 3、验证码的再次校验(注册时), 存入redis k->sms:code:手机号, v-验证码
-        stringRedisTemplate.opsForValue().set(AuthServerConstant.SMS_CODE_CACHE_PREFIX + mobilePhone, verificationCode,
-                5, TimeUnit.MINUTES);
+        stringRedisTemplate.opsForValue().set(AuthServerConstant.SMS_CODE_CACHE_PREFIX + mobilePhone, verificationCode, 5, TimeUnit.MINUTES);
 
         thirdPartFeignService.sendCode(mobilePhone, substring);
         log.info("mobilePhone = {}, verificationCode = {}", mobilePhone, substring);
