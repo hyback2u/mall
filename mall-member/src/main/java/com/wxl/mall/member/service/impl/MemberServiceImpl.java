@@ -13,6 +13,7 @@ import com.wxl.mall.member.exception.PhoneExistException;
 import com.wxl.mall.member.exception.UsernameExistException;
 import com.wxl.mall.member.service.MemberService;
 import com.wxl.mall.member.vo.MemberRegisterVO;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -52,7 +53,11 @@ public class MemberServiceImpl extends ServiceImpl<MemberDao, MemberEntity> impl
         entity.setUsername(vo.getUserName());
 
         // 密码要进行加密存储, 不能存储页面传过来的明文信息数据
-        entity.setPassword(vo.getPassword());
+        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+        String encode = passwordEncoder.encode(vo.getPassword());
+        entity.setPassword(encode);
+
+        // 其它的默认信息...
 
         // 持久化保存
         this.baseMapper.insert(entity);

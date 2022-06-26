@@ -4,6 +4,7 @@ import com.wxl.common.constant.AuthServerConstant;
 import com.wxl.common.exception.BizCodeEnum;
 import com.wxl.common.utils.R;
 import com.wxl.mall.auth.config.MallWebConfig;
+import com.wxl.mall.auth.feign.MemberFeignService;
 import com.wxl.mall.auth.feign.ThirdPartFeignService;
 import com.wxl.mall.auth.vo.UserRegisterVO;
 import lombok.extern.slf4j.Slf4j;
@@ -42,6 +43,8 @@ public class LoginController {
     @Resource
     private StringRedisTemplate stringRedisTemplate;
 
+    @Resource
+    private MemberFeignService memberFeignService;
 
     /**
      * 注册功能
@@ -84,7 +87,18 @@ public class LoginController {
                 // 1、删除验证码:令牌机制
                 stringRedisTemplate.delete(AuthServerConstant.SMS_CODE_CACHE_PREFIX + vo.getPhone());
                 // 2、验证码对比层成功, 调用远程服务进行注册
-
+                R register = memberFeignService.register(vo);
+                if (register.getCode().equals(0)) {
+                    // 成功
+                    return "redirect:/login.html";
+                } else {
+                    // 失败
+                    Map<String, String> errors = new HashMap<>();
+                    // todo, 从r中取出
+                    errors.put("msg", "用户名或手机号已被占用");
+                    attributes.addFlashAttribute("errors", errors);
+                    return "redirect:http://auth.mall.com/reg.html";
+                }
             } else {
                 // 验证不通过的逻辑
                 Map<String, String> errors = new HashMap<>();
@@ -96,7 +110,7 @@ public class LoginController {
 
 
         // 注册成功, 回到登录页面
-        return "redirect:/login.html";
+//        return "redirect:/login.html";
     }
 
 

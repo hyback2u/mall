@@ -1,8 +1,11 @@
 package com.wxl.mall.member.controller;
 
+import com.wxl.common.exception.BizCodeEnum;
 import com.wxl.common.utils.PageUtils;
 import com.wxl.common.utils.R;
 import com.wxl.mall.member.entity.MemberEntity;
+import com.wxl.mall.member.exception.PhoneExistException;
+import com.wxl.mall.member.exception.UsernameExistException;
 import com.wxl.mall.member.feign.CouponFeignService;
 import com.wxl.mall.member.service.MemberService;
 import com.wxl.mall.member.vo.MemberRegisterVO;
@@ -41,8 +44,10 @@ public class MemberController {
         try {
             memberService.checkPhoneUnique(vo.getPhone());
             memberService.checkUsernameUnique(vo.getUserName());
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (PhoneExistException e) {
+            return R.error(BizCodeEnum.PHONE_EXIST_EXCEPTION.getCode(), BizCodeEnum.PHONE_EXIST_EXCEPTION.getMsg());
+        } catch (UsernameExistException e) {
+            return R.error(BizCodeEnum.USERNAME_EXIST_EXCEPTION.getCode(), BizCodeEnum.USERNAME_EXIST_EXCEPTION.getMsg());
         }
 
         memberService.register(vo);
