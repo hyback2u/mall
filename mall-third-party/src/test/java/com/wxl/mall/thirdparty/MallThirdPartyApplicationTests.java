@@ -1,6 +1,7 @@
 package com.wxl.mall.thirdparty;
 
 import com.aliyun.oss.OSS;
+import com.wxl.mall.thirdparty.component.SmsComponent;
 import com.wxl.mall.thirdparty.util.HttpUtils;
 import org.apache.http.HttpResponse;
 import org.junit.Test;
@@ -23,6 +24,17 @@ import java.util.Map;
 public class MallThirdPartyApplicationTests {
     @Autowired
     OSS ossClient;
+
+    @Autowired
+    SmsComponent smsComponent;
+
+    /**
+     * 自定义sms组件测试
+     */
+    @Test
+    public void sendCodeComponentTest() {
+        smsComponent.sendSmsCode("18130112665", "1919543837");
+    }
 
 
     /**
