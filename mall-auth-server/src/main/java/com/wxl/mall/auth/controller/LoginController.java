@@ -5,15 +5,23 @@ import com.wxl.common.exception.BizCodeEnum;
 import com.wxl.common.utils.R;
 import com.wxl.mall.auth.config.MallWebConfig;
 import com.wxl.mall.auth.feign.ThirdPartFeignService;
+import com.wxl.mall.auth.vo.UserRegisterVO;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.annotation.Resource;
+import javax.validation.Valid;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -34,6 +42,50 @@ public class LoginController {
     @Resource
     private StringRedisTemplate stringRedisTemplate;
 
+
+    /**
+     * 注册功能
+     *
+     * @param vo         UserRegisterVO
+     * @param result     BindingResult校验
+     * @param attributes 模拟重定向携带数据
+     * @return page
+     */
+    @PostMapping("/register")
+    public String register(@Valid UserRegisterVO vo, BindingResult result, RedirectAttributes attributes) {
+        // 1、校验
+        if (result.hasErrors()) {
+            // 方便页面进行提取
+            Map<String, String> errors = new HashMap<>();
+            for (FieldError fieldError : result.getFieldErrors()) {
+                errors.put(fieldError.getField(), fieldError.getDefaultMessage());
+            }
+//            Map<String, String> errors = result.getFieldErrors().stream().collect(Collectors.toMap(
+//                    FieldError::getField,
+//                    DefaultMessageSourceResolvable::getDefaultMessage
+//            ));
+            attributes.addFlashAttribute("errors", errors);
+
+            // Request method 'POST' not supported, 转发 reg.html (路径映射默认都是get方式访问的)
+
+
+            // 如果有错误, 重定向到注册页面(防止页面重复提交) ---> 这样的话, 数据肯定不行了？ 不然你重定向去百度...
+            return "redirect:http://auth.mall.com/reg.html";
+        }
+
+        // 2、注册
+
+        // 注册成功, 回到登录页面
+        return "redirect:/login.html";
+    }
+
+
+    /**
+     * 发送验证码
+     *
+     * @param mobilePhone mobilePhone
+     * @return R
+     */
     @ResponseBody
     @GetMapping("/sms/sendCode")
     public R sendCode(@RequestParam("mobilePhone") String mobilePhone) {
