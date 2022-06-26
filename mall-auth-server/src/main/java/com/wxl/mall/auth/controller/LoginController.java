@@ -90,7 +90,7 @@ public class LoginController {
                 R register = memberFeignService.register(vo);
                 if (register.getCode().equals(0)) {
                     // 成功
-                    return "redirect:/login.html";
+                    return "redirect:http://auth.mall.com/login.html";
                 } else {
                     // 失败
                     Map<String, String> errors = new HashMap<>();
