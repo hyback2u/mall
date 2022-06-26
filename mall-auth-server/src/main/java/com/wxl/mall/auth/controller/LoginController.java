@@ -123,7 +123,8 @@ public class LoginController {
     @ResponseBody
     @GetMapping("/sms/sendCode")
     public R sendCode(@RequestParam("mobilePhone") String mobilePhone) {
-        String verificationCode = UUID.randomUUID().toString().substring(0, 5) + "_" + System.currentTimeMillis();
+        String substring = UUID.randomUUID().toString().substring(0, 5);
+        String verificationCode = substring + "_" + System.currentTimeMillis();
 
         // 1、接口防刷 todo
 
@@ -142,8 +143,8 @@ public class LoginController {
         stringRedisTemplate.opsForValue().set(AuthServerConstant.SMS_CODE_CACHE_PREFIX + mobilePhone, verificationCode,
                 5, TimeUnit.MINUTES);
 
-        thirdPartFeignService.sendCode(mobilePhone, verificationCode);
-        log.info("mobilePhone = {}, verificationCode = {}", mobilePhone, verificationCode);
+        thirdPartFeignService.sendCode(mobilePhone, substring);
+        log.info("mobilePhone = {}, verificationCode = {}", mobilePhone, substring);
         return R.ok();
     }
 }
