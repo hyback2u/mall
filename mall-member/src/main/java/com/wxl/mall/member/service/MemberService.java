@@ -5,6 +5,7 @@ import com.wxl.common.utils.PageUtils;
 import com.wxl.mall.member.entity.MemberEntity;
 import com.wxl.mall.member.exception.PhoneExistException;
 import com.wxl.mall.member.exception.UsernameExistException;
+import com.wxl.mall.member.vo.MemberLoginVO;
 import com.wxl.mall.member.vo.MemberRegisterVO;
 
 import java.util.Map;
@@ -41,5 +42,14 @@ public interface MemberService extends IService<MemberEntity> {
      * @param username 用户名
      */
     void checkUsernameUnique(String username) throws UsernameExistException;
+
+
+    /**
+     * 登录功能
+     *
+     * @param vo MemberLoginVO
+     * @return MemberEntity
+     */
+    MemberEntity login(MemberLoginVO vo);
 }
 

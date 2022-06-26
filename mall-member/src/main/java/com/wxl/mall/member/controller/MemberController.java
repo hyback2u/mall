@@ -8,6 +8,7 @@ import com.wxl.mall.member.exception.PhoneExistException;
 import com.wxl.mall.member.exception.UsernameExistException;
 import com.wxl.mall.member.feign.CouponFeignService;
 import com.wxl.mall.member.service.MemberService;
+import com.wxl.mall.member.vo.MemberLoginVO;
 import com.wxl.mall.member.vo.MemberRegisterVO;
 import org.springframework.web.bind.annotation.*;
 
@@ -32,6 +33,23 @@ public class MemberController {
     @Resource
     private CouponFeignService couponFeignService;
 
+
+    /**
+     * 登录功能
+     *
+     * @param vo MemberLoginVO
+     * @return R
+     */
+    @PostMapping("/login")
+    public R login(@RequestBody MemberLoginVO vo) {
+        MemberEntity entity = memberService.login(vo);
+        if (null != entity) {
+            return R.ok();
+        } else {
+            return R.error(BizCodeEnum.LOGIN_ACCOUNT_PASSWORD_INVALID_EXCEPTION.getCode(),
+                    BizCodeEnum.LOGIN_ACCOUNT_PASSWORD_INVALID_EXCEPTION.getMsg());
+        }
+    }
 
     /**
      * 注册

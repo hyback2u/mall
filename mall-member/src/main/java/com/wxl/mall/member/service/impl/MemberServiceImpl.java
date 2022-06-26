@@ -12,6 +12,7 @@ import com.wxl.mall.member.entity.MemberLevelEntity;
 import com.wxl.mall.member.exception.PhoneExistException;
 import com.wxl.mall.member.exception.UsernameExistException;
 import com.wxl.mall.member.service.MemberService;
+import com.wxl.mall.member.vo.MemberLoginVO;
 import com.wxl.mall.member.vo.MemberRegisterVO;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -93,6 +94,42 @@ public class MemberServiceImpl extends ServiceImpl<MemberDao, MemberEntity> impl
                 .eq("username", username));
         if (usernameCount > 0) {
             throw new UsernameExistException();
+        }
+    }
+
+
+    /**
+     * 登录功能
+     *
+     * @param vo MemberLoginVO
+     * @return MemberEntity
+     */
+    @Override
+    public MemberEntity login(MemberLoginVO vo) {
+        String loginAccount = vo.getLoginAccount();
+        String password = vo.getPassword();
+
+        // 1、去数据库查询
+        MemberDao memberDao = this.baseMapper;
+
+        MemberEntity memberEntity = memberDao.selectOne(new QueryWrapper<MemberEntity>()
+                .eq("username", loginAccount).or()
+                .eq("mobile", loginAccount));
+
+        // 2、校验
+        if (null == memberEntity) {
+            return null;
+        } else {
+            // 数据库的密码字段
+            String dbPassword = memberEntity.getPassword();
+            // 密码匹配
+            BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+            boolean matches = passwordEncoder.matches(password, dbPassword);
+            if (matches) {
+                return memberEntity;
+            } else {
+                return null;
+            }
         }
     }
 }

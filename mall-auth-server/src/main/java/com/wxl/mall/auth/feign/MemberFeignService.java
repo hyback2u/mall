@@ -1,6 +1,7 @@
 package com.wxl.mall.auth.feign;
 
 import com.wxl.common.utils.R;
+import com.wxl.mall.auth.vo.UserLoginVO;
 import com.wxl.mall.auth.vo.UserRegisterVO;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -23,4 +24,14 @@ public interface MemberFeignService {
      */
     @PostMapping("/member/member/register")
     R register(@RequestBody UserRegisterVO vo);
+
+
+    /**
+     * 登录功能
+     *
+     * @param vo MemberLoginVO
+     * @return R
+     */
+    @PostMapping("/member/member/login")
+    R login(@RequestBody UserLoginVO vo);
 }

@@ -6,6 +6,7 @@ import com.wxl.common.utils.R;
 import com.wxl.mall.auth.config.MallWebConfig;
 import com.wxl.mall.auth.feign.MemberFeignService;
 import com.wxl.mall.auth.feign.ThirdPartFeignService;
+import com.wxl.mall.auth.vo.UserLoginVO;
 import com.wxl.mall.auth.vo.UserRegisterVO;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -45,6 +46,31 @@ public class LoginController {
 
     @Resource
     private MemberFeignService memberFeignService;
+
+
+    /**
+     * 登录
+     *
+     * @param userLoginVO 账号
+     * @param attributes  密码
+     * @return 页面跳转逻辑
+     */
+    @PostMapping("/login")
+    public String login(UserLoginVO userLoginVO, RedirectAttributes attributes) {
+        // 调用远程登录
+        R login = memberFeignService.login(userLoginVO);
+        if (login.getCode().equals(0)) {
+            // 成功, 重定向到商城首页
+            return "redirect:http://mall.com";
+        } else {
+            Map<String, String> errors = new HashMap<>();
+            // todo 从R中获取数据
+            errors.put("msg", "用户名或密码错误");
+            attributes.addFlashAttribute("errors", errors);
+            return "redirect:http://auth.mall.com/login.html";
+        }
+    }
+
 
     /**
      * 注册功能
