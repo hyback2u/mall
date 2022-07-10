@@ -8,7 +8,7 @@ spring:
     #MySQL配置
     driverClassName: com.mysql.cj.jdbc.Driver
     # 修改一下, 连向哪一个数据库进行生成。如商品系统pms: jdbc:mysql://192.168.56.10:3306/mall_pms
-    url: jdbc:mysql://192.168.56.10:3306/mall_wms?useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=Asia/Shanghai
+    url: jdbc:mysql://192.168.186.129:3306/mall_wms?useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=Asia/Shanghai
     username: root
     password: root
     #oracle配置

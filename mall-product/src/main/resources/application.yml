@@ -4,7 +4,7 @@ server:
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://192.168.56.10:3306/mall_pms?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai
+    url: jdbc:mysql://192.168.186.129:3306/mall_pms?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai
     username: root
     password: root
   cloud:
@@ -16,7 +16,7 @@ spring:
   thymeleaf:
     cache: false # 关闭缓存(开发期间可以看到实时效果)
   redis:
-    host: 192.168.56.10
+    host: 192.168.186.129
     port: 6379
 
 mybatis-plus:
