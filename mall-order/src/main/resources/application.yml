@@ -14,6 +14,10 @@ spring:
         server-addr: 127.0.0.1:8848 # 配置 Nacos Server 地址
   application:
     name: mall-order
+  rabbitmq:
+    host: 124.220.57.29
+    port: 5672
+    virtual-host: /
 
 mybatis-plus:
   mapper-locations: classpath:/mapper/**/*.xml
