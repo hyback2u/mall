@@ -1,5 +1,6 @@
 package com.wxl.mall.order;
 
+import com.wxl.mall.order.entity.OrderReturnReasonEntity;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -7,9 +8,12 @@ import org.springframework.amqp.core.AmqpAdmin;
 import org.springframework.amqp.core.Binding;
 import org.springframework.amqp.core.DirectExchange;
 import org.springframework.amqp.core.Queue;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
+
+import java.util.Date;
 
 /**
  * AmqpAdmin的使用, 创建、删除队列交换机以及绑定关系
@@ -24,6 +28,9 @@ public class MallOrderApplicationTests {
 
     @Autowired
     private AmqpAdmin amqpAdmin;
+
+    @Autowired
+    private RabbitTemplate rabbitTemplate;
 
     /**
      * 1、如何创建Exchange, Queue, Binding  使用AmqpAdmin(管理...)进行创建
@@ -65,5 +72,26 @@ public class MallOrderApplicationTests {
         amqpAdmin.declareBinding(binding);
 
         log.info("Binding[{}]创建成功", "hello-java-queue");
+    }
+
+
+    /**
+     * 测试发送消息
+     */
+    @Test
+    public void sendMessage() {
+//        String msg = "Hello World";
+        OrderReturnReasonEntity entity = new OrderReturnReasonEntity();
+        entity.setId(1L);
+
+        entity.setCreateTime(new Date());
+
+        // 如果发送的消息是个对象, 我们会使用序列化机制, 将对象写出去... 因此要求对象必须实现Serializable接口
+
+        for (int i = 0; i < 10; i++) {
+            entity.setName("退换货：" + i);
+            rabbitTemplate.convertAndSend("hello-java-exchange", "hello.java", entity);
+            log.info("**************************消息发送完成: {}", entity);
+        }
     }
 }
